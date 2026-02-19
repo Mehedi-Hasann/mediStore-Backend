@@ -33,6 +33,8 @@ model Medicine {
   categoryName String
   orders       Order[]
   reviews      Review[]
+  cart         Cart[]
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -40,10 +42,10 @@ model Medicine {
 }
 
 model Order {
-  id          String @id @default(uuid())
-  totalAmount Int
-  quantity    Int
-  userId      String
+  id              String @id @default(uuid())
+  totalAmount     Int
+  quantity        Int
+  userId          String
 
   medicineId      String
   medicine        Medicine    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
@@ -53,6 +55,23 @@ model Order {
 
   @@map("orders")
 }
+
+model Cart {
+  id              String @id @default(uuid())
+  userId          String
+  user            User  @relation(fields: [userId], references: [id],onDelete: Cascade)
+
+  medicineId      String
+  medicine        Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, medicineId])
+  @@map("carts")
+}
+
 
 model Review {
   id         String   @id @default(uuid())
@@ -93,6 +112,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  cart          Cart[]
 
   role String? @default("CUSTOMER")
 

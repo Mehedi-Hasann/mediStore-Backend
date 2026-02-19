@@ -18,20 +18,13 @@ app.use(cors({
 }))
 
 app.use(express.json());
+
+//! customer
 app.use("/api/auth",customerRouter);
 
 //! better auth
 //! better auth main handler
 app.all('/api/auth/*splat', toNodeHandler(auth));
-
-//! register alias
-// app.post('/api/auth/register', (req: Request, res: Response) => {
-//   req.url = '/api/auth/sign-up/email';
-//   toNodeHandler(auth)(req, res);
-// });
-
-
-//! customer
 
 
 //! medicine

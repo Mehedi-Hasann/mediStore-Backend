@@ -65,6 +65,30 @@ const addShippingAddress = async (payload : {id: string,shippingAddress : string
   return res;
 }
 
+const AddItemToCard = async(payload : {medicineId : string}, userId : string) => {
+  // console.log(payload);
+  const res = await prisma.cart.upsert({
+    where : {
+      userId_medicineId : {
+        userId,
+        medicineId : payload.medicineId
+      }
+    },
+    update : {
+      quantity : {
+        increment : 1
+      }
+    },
+    create : {
+      userId,
+      medicineId : payload.medicineId
+    }
+  })
+  // console.log(res);
+
+  return res;
+}
+
 export const customerService = {
-  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress
+  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard
 }

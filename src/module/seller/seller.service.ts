@@ -3,6 +3,9 @@ import { Medicine, Order } from "../../generated/client";
 
 const createMedicine = async(payload : Medicine) => {
   // console.log(payload);
+  if(!payload.categoryId){
+    throw new Error("You must Provide Category Id")
+  }
   const category = await prisma.category.findUniqueOrThrow({
     where : {
       id : payload.categoryId

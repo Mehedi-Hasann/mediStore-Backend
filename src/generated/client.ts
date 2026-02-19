@@ -55,6 +55,11 @@ export type Medicine = Prisma.MedicineModel
  */
 export type Order = Prisma.OrderModel
 /**
+ * Model Cart
+ * 
+ */
+export type Cart = Prisma.CartModel
+/**
  * Model Review
  * 
  */

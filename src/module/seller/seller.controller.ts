@@ -5,13 +5,13 @@ import { Medicine, Order } from "../../generated/client";
 
 const createMedicine = async(req: Request, res : Response) => {
   try {
-    res.send(req.body)
+    // console.log(req.body);
     const result = await sellerServices.createMedicine(req.body);
 
-
     res.status(201).json(result);
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (error : any) {
+    // console.log(error);
+    res.status(404).json(error.message)
   }
 }
 
@@ -56,7 +56,7 @@ const updateStatus = async(req: Request, res: Response) => {
   try {
     // console.log('hi');
     const id = req.params.id;
-    console.log(req.body);
+    // console.log(req.body);
     const result = await sellerServices.updateStatus(req.body as Order,id as string);
 
     res.status(200).json(result);

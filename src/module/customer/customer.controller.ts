@@ -113,6 +113,30 @@ const addShippingAddress = async(req: Request, res : Response) => {
   }
 }
 
+const AddItemToCard = async (req: Request, res : Response) => {
+  try {
+    const user = req.user;
+    if(!user){
+      res.status(404).json({
+        message : false,
+        error : "Please Login to Add Item in your Cart"
+      })
+    }
+
+    const userId = req.user?.id;
+    const result = await customerService.AddItemToCard(req.body, userId as string);
+    console.log(result);
+
+    res.status(201).json(result);
+
+  } catch (error : any) {
+    res.status(500).json({
+      success : false,
+      message : error.message
+    })
+  }
+}
+
 export const customerController = {
-  getMyProfile, getMyOrder, editMyProfile, getSingleOrder, addShippingAddress
+  getMyProfile, getMyOrder, editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard
 }
