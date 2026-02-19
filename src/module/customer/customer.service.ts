@@ -50,6 +50,21 @@ const getSingleOrder = async (id : string) => {
   return res;
 }
 
+const addShippingAddress = async (payload : {id: string,shippingAddress : string}, userId : string) => {
+  console.log(payload);
+  const res = await prisma.order.update({
+    where : {
+      id : payload.id
+    },
+    data : {
+      shippingAddress : payload.shippingAddress
+    }
+  })
+  console.log(res);
+
+  return res;
+}
+
 export const customerService = {
-  getMyProfile,getMyOrder,editMyProfile, getSingleOrder
+  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress
 }

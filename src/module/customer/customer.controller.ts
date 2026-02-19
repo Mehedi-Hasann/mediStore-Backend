@@ -90,6 +90,29 @@ const getSingleOrder = async(req: Request, res : Response) => {
   }
 }
 
+const addShippingAddress = async(req: Request, res : Response) => {
+  try {
+    // console.log(req.user);
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
+      })
+    }
+    // console.log(req.body);
+    const userId = req.user.id;
+    const result = await customerService.addShippingAddress(req.body ,userId as string);
+    // console.log(result);
+
+    res.status(200).json({result});
+  } catch (error : any) {
+    res.status(500).json({
+      success : false,
+      message : error.message
+    })
+  }
+}
+
 export const customerController = {
-  getMyProfile, getMyOrder, editMyProfile, getSingleOrder
+  getMyProfile, getMyOrder, editMyProfile, getSingleOrder, addShippingAddress
 }
