@@ -89,6 +89,22 @@ const AddItemToCard = async(payload : {medicineId : string}, userId : string) =>
   return res;
 }
 
+const getMyCartItem = async (userId : string) => {
+  // console.log(id);
+  // const res = await prisma.user.findUniqueOrThrow({
+  //   where : {
+  //     id : userId
+  //   }
+  // })
+  // console.log(res);
+  const cartItem = await prisma.cart.findMany({
+    where : {
+      userId
+    }
+  })
+  return cartItem;
+}
+
 export const customerService = {
-  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard
+  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard, getMyCartItem
 }
