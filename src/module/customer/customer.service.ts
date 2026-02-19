@@ -12,16 +12,16 @@ const getMyProfile = async (id : string) => {
   // console.log(res);
   return res;
 }
-// const getMyOrder = async (id : string) => {
-//   // console.log(id);
-//   const res = await prisma.order.findMany({
-//     where : {
-//       userId : id
-//     }
-//   })
-//   console.log(res);
-//   return res;
-// }
+const getMyOrder = async (id : string) => {
+  // console.log(id);
+  const res = await prisma.order.findMany({
+    where : {
+      userId : id
+    }
+  })
+  console.log(res);
+  return res;
+}
 // const editMyProfile = async (payload : EditUser, userId : string) => {
 //   const res = await prisma.user.update({
 //     where : {
@@ -38,5 +38,5 @@ const getMyProfile = async (id : string) => {
 // }
 
 export const customerService = {
-  getMyProfile
+  getMyProfile,getMyOrder
 }
