@@ -22,21 +22,21 @@ const getMyOrder = async (id : string) => {
   console.log(res);
   return res;
 }
-// const editMyProfile = async (payload : EditUser, userId : string) => {
-//   const res = await prisma.user.update({
-//     where : {
-//       id : userId
-//     },
-//     data : {
-//       name : payload.name,
-//       email : payload.email
-//     }
-//   })
-//   console.log(res);
+const editMyProfile = async (payload : EditUser, userId : string) => {
+  const res = await prisma.user.update({
+    where : {
+      id : userId
+    },
+    data : {
+      name : payload.name,
+      email : payload.email
+    }
+  })
+  console.log(res);
 
-//   return res;
-// }
+  return res;
+}
 
 export const customerService = {
-  getMyProfile,getMyOrder
+  getMyProfile,getMyOrder,editMyProfile
 }
