@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/me',auth(UserRole.CUSTOMER),customerController.getMyProfile);
 router.get('/orders',auth(UserRole.CUSTOMER),customerController.getMyOrder);
+router.get('/orders/:id',auth(UserRole.CUSTOMER),customerController.getSingleOrder);
 router.put('/profile',auth(UserRole.CUSTOMER),customerController.editMyProfile)
 
 export const customerRouter = router

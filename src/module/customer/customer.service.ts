@@ -12,6 +12,7 @@ const getMyProfile = async (id : string) => {
   // console.log(res);
   return res;
 }
+
 const getMyOrder = async (id : string) => {
   // console.log(id);
   const res = await prisma.order.findMany({
@@ -22,6 +23,7 @@ const getMyOrder = async (id : string) => {
   console.log(res);
   return res;
 }
+
 const editMyProfile = async (payload : EditUser, userId : string) => {
   const res = await prisma.user.update({
     where : {
@@ -37,6 +39,17 @@ const editMyProfile = async (payload : EditUser, userId : string) => {
   return res;
 }
 
+const getSingleOrder = async (id : string) => {
+  // console.log(id);
+  const res = await prisma.order.findUniqueOrThrow({
+    where : {
+      id
+    }
+  })
+  // console.log(res);
+  return res;
+}
+
 export const customerService = {
-  getMyProfile,getMyOrder,editMyProfile
+  getMyProfile,getMyOrder,editMyProfile, getSingleOrder
 }
