@@ -1,17 +1,17 @@
-// import { User } from "../../generated/client";
-// import { prisma } from "../../lib/prisma"
-// import { EditUser } from "../../types/type";
+import { User } from "../../generated/client";
+import { prisma } from "../../lib/prisma"
+import { EditUser } from "../../types/type";
 
-// const getMyProfile = async (id : string) => {
-//   // console.log(id);
-//   const res = await prisma.user.findUniqueOrThrow({
-//     where : {
-//       id
-//     }
-//   })
-//   // console.log(res);
-//   return res;
-// }
+const getMyProfile = async (id : string) => {
+  // console.log(id);
+  const res = await prisma.user.findUniqueOrThrow({
+    where : {
+      id
+    }
+  })
+  // console.log(res);
+  return res;
+}
 // const getMyOrder = async (id : string) => {
 //   // console.log(id);
 //   const res = await prisma.order.findMany({
@@ -19,7 +19,7 @@
 //       userId : id
 //     }
 //   })
-//   // console.log(res);
+//   console.log(res);
 //   return res;
 // }
 // const editMyProfile = async (payload : EditUser, userId : string) => {
@@ -37,6 +37,6 @@
 //   return res;
 // }
 
-// export const customerService = {
-//   getMyProfile, getMyOrder, editMyProfile
-// }
+export const customerService = {
+  getMyProfile
+}

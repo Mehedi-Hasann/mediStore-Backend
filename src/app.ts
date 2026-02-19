@@ -7,7 +7,7 @@ import cors from "cors"
 import { sellerRouter } from "./module/seller/seller.route";
 import { orderRoute } from "./module/orders/orders.route";
 import { adminRoute } from "./module/admin/admin.route";
-// import { customerRouter } from "./module/customer/customer.route";
+import { customerRouter } from "./module/customer/customer.route";
 
 
 const app = express();
@@ -18,7 +18,7 @@ app.use(cors({
 }))
 
 app.use(express.json());
-// app.use("/api/auth",customerRouter);
+app.use("/api/auth",customerRouter);
 
 //! better auth
 //! better auth main handler
