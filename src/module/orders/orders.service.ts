@@ -3,27 +3,26 @@ import { Order, OrderStatus } from "../../generated/client";
 import { prisma } from "../../lib/prisma";
 
 const createOrder = async(payload : Order, userId : string) => {
-  console.log(payload.id);
-
 
   const medicine = await prisma.medicine.findUnique({
     where : {
-      id : payload.id
+      id : payload.medicineId
     }
   });
-  // console.log(medicine);
+  console.log('medicine => ',medicine);
 
-  if(!medicine){
-    throw new Error("Medicine is not Found! Try again later");
-  }
+  // if(medicine===null){
+  //   throw new Error("Medicine is not Found! Try again later");
+  // }
  
   const result = await prisma.order.create({
     data : {
-      medicineId : medicine?.id,
-      status : OrderStatus.PENDING,
-      totalAmount : (medicine?.price ?? 0) * payload.quantity,
       userId,
-      quantity : payload.quantity
+      medicineId : payload.medicineId,
+      status : OrderStatus.PENDING,
+      quantity : payload.quantity,
+      totalAmount : (medicine?.price ?? 0) * payload.quantity,
+      addressId : payload.addressId
     }
   })
 

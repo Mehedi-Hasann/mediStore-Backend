@@ -6,6 +6,7 @@ import { auth } from "../../middlewares/auth";
 const router = express.Router();
 
 router.get("/users",auth(UserRole.ADMIN),adminController.getAllUser);
+router.get("/stats",auth(UserRole.ADMIN, UserRole.SELLER),adminController.getStats);
 router.patch("/users/:id",auth(UserRole.ADMIN),adminController.updateUserStatus);
 
 export const adminRoute = router

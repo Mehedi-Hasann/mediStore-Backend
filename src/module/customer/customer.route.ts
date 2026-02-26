@@ -7,10 +7,19 @@ const router = express.Router();
 router.get('/me',auth(UserRole.CUSTOMER),customerController.getMyProfile);
 router.get('/orders',auth(UserRole.CUSTOMER),customerController.getMyOrder);
 router.get('/orders/:id',auth(UserRole.CUSTOMER),customerController.getSingleOrder);
+
 router.post('/cart',auth(UserRole.CUSTOMER),customerController.AddItemToCard);
+router.post('/decrement',auth(UserRole.CUSTOMER),customerController.DecrementCartItem);
+
 router.get('/cart',auth(UserRole.CUSTOMER),customerController.getMyCartItem);
+router.get('/cart/:id',auth(UserRole.CUSTOMER),customerController.getMySingleCartItem);
 router.put('/profile',auth(UserRole.CUSTOMER),customerController.editMyProfile);
 router.put('/checkout',auth(UserRole.CUSTOMER),customerController.addShippingAddress);
+router.delete('/:id',auth(UserRole.CUSTOMER),customerController.deleteCartItem);
+
+router.post('/address',auth(UserRole.CUSTOMER),customerController.createAddress);
+router.get('/my-address',auth(UserRole.CUSTOMER),customerController.getMyAddress);
+
 
 
 export const customerRouter = router

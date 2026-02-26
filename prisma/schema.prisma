@@ -49,11 +49,31 @@ model Order {
 
   medicineId      String
   medicine        Medicine    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  addressId       String
+  address         Address @relation(fields: [addressId], references: [id])
+
   status          OrderStatus
-  shippingAddress String?
   createdAt       DateTime    @default(now())
 
   @@map("orders")
+}
+model Address {
+  id       String @id @default(uuid())
+
+  fullName String
+  phone    String
+  city     String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orders   Order[]
+
+  @@map("address")
 }
 
 model Cart {
@@ -113,6 +133,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   cart          Cart[]
+  address       Address?
 
   role String? @default("CUSTOMER")
 

@@ -1,3 +1,4 @@
+import { UserRole } from "../../constants/enum";
 import { User } from "../../generated/client";
 import { prisma } from "../../lib/prisma"
 
@@ -6,6 +7,7 @@ const getAllUser = async(page : number, limit: number) => {
     take : limit,
     skip : (page-1)*limit
   });
+  // console.log(data);
 
   const totalUser = await prisma.user.count();
   // console.log(totalUser);
@@ -15,6 +17,7 @@ const getAllUser = async(page : number, limit: number) => {
 
 const updateUserStatus = async(payload : Pick<User, "userStatus">,id : string) => {
   // console.log(id);
+  console.log('hi');
   await prisma.user.findUniqueOrThrow({
     where : {
       id
@@ -33,6 +36,30 @@ const updateUserStatus = async(payload : Pick<User, "userStatus">,id : string) =
   return result;
 }
 
+const getStats = async() => {
+  return await prisma.$transaction(async (tx) => {
+    const [totalUser,totalCustomer,totalSeller,totalOrder,totalOrderAmount,totalMedicine,totalCategory] = await Promise.all([
+      await prisma.user.count(),
+      await prisma.user.count({where : {role : UserRole.CUSTOMER}}),
+      await prisma.user.count({where : {role : UserRole.SELLER}}),
+      await prisma.order.count(),
+      await prisma.order.aggregate({_sum : {totalAmount : true}}),
+      await prisma.medicine.count(),
+      await prisma.category.count()
+    ]);
+
+    return {
+      totalUser,
+      totalCustomer,
+      totalSeller,
+      totalOrder,
+      totalOrderAmount : totalOrderAmount._sum.totalAmount,
+      totalMedicine,
+      totalCategory
+    }
+  })
+}
+
 export const adminService = {
-  getAllUser, updateUserStatus
+  getAllUser, updateUserStatus, getStats
 }

@@ -10,10 +10,10 @@ const createCategory = async(data : Omit<Category, "id">) => {
   return result;
 }
 
-const getCategory = async(categoryName : string) => {
+const getSingleCategory = async(categoryId : string) => {
   const result = await prisma.category.findUnique({
     where : {
-      categoryName
+      id : categoryId
     },
     include : {
       medicines : {
@@ -30,15 +30,11 @@ const getCategory = async(categoryName : string) => {
 
 }
 const getAllCategory = async() => {
-  const result = await prisma.category.findMany({
-    select : {
-      categoryName : true
-    }
-  });
+  const result = await prisma.category.findMany();
   return result;
 }
 
 
 export const categoryService = {
-  createCategory, getCategory, getAllCategory
+  createCategory, getSingleCategory, getAllCategory
 }

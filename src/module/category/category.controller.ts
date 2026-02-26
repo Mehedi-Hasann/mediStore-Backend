@@ -13,8 +13,8 @@ const createCategory = async(req: Request, res: Response) => {
 
 const getCategory = async(req: Request, res: Response) => {
   try {
-    const {categoryName} = req.params;
-    const result = await categoryService.getCategory(categoryName as string);
+    const {categoryId} = req.params;
+    const result = await categoryService.getSingleCategory(categoryId as string);
 
     res.status(500).json(result);
 
