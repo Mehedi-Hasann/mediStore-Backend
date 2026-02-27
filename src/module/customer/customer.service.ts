@@ -3,13 +3,13 @@ import { prisma } from "../../lib/prisma"
 import { EditUser } from "../../types/type";
 
 const getMyProfile = async (id : string) => {
-  // console.log(id);
+  
   const res = await prisma.user.findUniqueOrThrow({
     where : {
       id
     }
   })
-  // console.log(res);
+  
   return res;
 }
 

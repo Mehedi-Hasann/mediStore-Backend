@@ -3,7 +3,6 @@ import { customerService } from "./customer.service";
 
 const getMyProfile = async(req: Request, res : Response) => {
   try {
-    // console.log(req.user);
     if(!req.user){
       return res.status(404).json({
         success : false,
@@ -12,7 +11,6 @@ const getMyProfile = async(req: Request, res : Response) => {
     }
     const {id} = req.user;
     const result = await customerService.getMyProfile(id);
-    // console.log(result);
 
     res.status(200).json(result);
   } catch (error : any) {
