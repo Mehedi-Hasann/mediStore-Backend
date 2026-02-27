@@ -1,0 +1,1257 @@
+// src/app.ts
+import express7 from "express";
+
+// src/module/medicine/medicine.route.ts
+import express from "express";
+
+// src/lib/prisma.ts
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+// src/generated/client.ts
+import * as path from "path";
+import { fileURLToPath } from "url";
+
+// src/generated/internal/class.ts
+import * as runtime from "@prisma/client/runtime/client";
+var config = {
+  "previewFeatures": [],
+  "clientVersion": "7.3.0",
+  "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
+  "activeProvider": "postgresql",
+  "inlineSchema": 'generator client {\n  provider = "prisma-client"\n  output   = "../src/generated"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n\nenum Role {\n  CUSTOMER\n  SELLER\n  ADMIN\n}\n\nmodel Category {\n  id           String     @id @default(uuid())\n  medicines    Medicine[]\n  categoryName String     @unique\n  description  String?\n\n  @@map("categories")\n}\n\nmodel Medicine {\n  id           String   @id @default(uuid())\n  name         String   @unique\n  price        Int\n  stock        Int\n  categoryId   String\n  category     Category @relation(fields: [categoryId], references: [id])\n  categoryName String\n  orders       Order[]\n  reviews      Review[]\n  cart         Cart[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("medicines")\n}\n\nmodel Order {\n  id          String @id @default(uuid())\n  totalAmount Int\n  quantity    Int\n  userId      String\n\n  medicineId String\n  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)\n\n  addressId String\n  address   Address @relation(fields: [addressId], references: [id])\n\n  status    OrderStatus\n  createdAt DateTime    @default(now())\n\n  @@map("orders")\n}\n\nmodel Address {\n  id String @id @default(uuid())\n\n  fullName String\n  phone    String\n  city     String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  userId String @unique\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  orders Order[]\n\n  @@map("address")\n}\n\nmodel Cart {\n  id     String @id @default(uuid())\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  medicineId String\n  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)\n\n  quantity  Int      @default(1)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([userId, medicineId])\n  @@map("carts")\n}\n\nmodel Review {\n  id         String   @id @default(uuid())\n  userId     String\n  medicineId String\n  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)\n  rating     Rating\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map("reviews")\n}\n\nenum Rating {\n  ONE\n  TWO\n  THREE\n  FOUR\n  FIVE\n}\n\nenum OrderStatus {\n  PENDING\n  PROCESSING\n  SHIPPED\n  DELIVERED\n  CANCELLED\n}\n\nmodel User {\n  id            String    @id\n  name          String\n  email         String\n  emailVerified Boolean   @default(false)\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n  cart          Cart[]\n  address       Address?\n\n  role String? @default("CUSTOMER")\n\n  userStatus String? @default("APPROVED")\n\n  @@unique([email])\n  @@map("user")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map("session")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map("account")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map("verification")\n}\n',
+  "runtimeDataModel": {
+    "models": {},
+    "enums": {},
+    "types": {}
+  }
+};
+config.runtimeDataModel = JSON.parse('{"models":{"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"medicines","kind":"object","type":"Medicine","relationName":"CategoryToMedicine"},{"name":"categoryName","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"}],"dbName":"categories"},"Medicine":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Int"},{"name":"stock","kind":"scalar","type":"Int"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToMedicine"},{"name":"categoryName","kind":"scalar","type":"String"},{"name":"orders","kind":"object","type":"Order","relationName":"MedicineToOrder"},{"name":"reviews","kind":"object","type":"Review","relationName":"MedicineToReview"},{"name":"cart","kind":"object","type":"Cart","relationName":"CartToMedicine"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"medicines"},"Order":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"totalAmount","kind":"scalar","type":"Int"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"userId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"medicine","kind":"object","type":"Medicine","relationName":"MedicineToOrder"},{"name":"addressId","kind":"scalar","type":"String"},{"name":"address","kind":"object","type":"Address","relationName":"AddressToOrder"},{"name":"status","kind":"enum","type":"OrderStatus"},{"name":"createdAt","kind":"scalar","type":"DateTime"}],"dbName":"orders"},"Address":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"fullName","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"city","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AddressToUser"},{"name":"orders","kind":"object","type":"Order","relationName":"AddressToOrder"}],"dbName":"address"},"Cart":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"CartToUser"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"medicine","kind":"object","type":"Medicine","relationName":"CartToMedicine"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"carts"},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"medicine","kind":"object","type":"Medicine","relationName":"MedicineToReview"},{"name":"rating","kind":"enum","type":"Rating"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"reviews"},"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"sessions","kind":"object","type":"Session","relationName":"SessionToUser"},{"name":"accounts","kind":"object","type":"Account","relationName":"AccountToUser"},{"name":"cart","kind":"object","type":"Cart","relationName":"CartToUser"},{"name":"address","kind":"object","type":"Address","relationName":"AddressToUser"},{"name":"role","kind":"scalar","type":"String"},{"name":"userStatus","kind":"scalar","type":"String"}],"dbName":"user"},"Session":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"token","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"ipAddress","kind":"scalar","type":"String"},{"name":"userAgent","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"SessionToUser"}],"dbName":"session"},"Account":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"accountId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AccountToUser"},{"name":"accessToken","kind":"scalar","type":"String"},{"name":"refreshToken","kind":"scalar","type":"String"},{"name":"idToken","kind":"scalar","type":"String"},{"name":"accessTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"refreshTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"scope","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"account"},"Verification":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"identifier","kind":"scalar","type":"String"},{"name":"value","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"verification"}},"enums":{},"types":{}}');
+async function decodeBase64AsWasm(wasmBase64) {
+  const { Buffer } = await import("buffer");
+  const wasmArray = Buffer.from(wasmBase64, "base64");
+  return new WebAssembly.Module(wasmArray);
+}
+config.compilerWasm = {
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.mjs"),
+  getQueryCompilerWasmModule: async () => {
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.mjs");
+    return await decodeBase64AsWasm(wasm);
+  },
+  importName: "./query_compiler_fast_bg.js"
+};
+function getPrismaClientClass() {
+  return runtime.getPrismaClient(config);
+}
+
+// src/generated/internal/prismaNamespace.ts
+import * as runtime2 from "@prisma/client/runtime/client";
+var getExtensionContext = runtime2.Extensions.getExtensionContext;
+var NullTypes2 = {
+  DbNull: runtime2.NullTypes.DbNull,
+  JsonNull: runtime2.NullTypes.JsonNull,
+  AnyNull: runtime2.NullTypes.AnyNull
+};
+var TransactionIsolationLevel = runtime2.makeStrictEnum({
+  ReadUncommitted: "ReadUncommitted",
+  ReadCommitted: "ReadCommitted",
+  RepeatableRead: "RepeatableRead",
+  Serializable: "Serializable"
+});
+var defineExtension = runtime2.Extensions.defineExtension;
+
+// src/generated/enums.ts
+var OrderStatus = {
+  PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  SHIPPED: "SHIPPED",
+  DELIVERED: "DELIVERED",
+  CANCELLED: "CANCELLED"
+};
+
+// src/generated/client.ts
+globalThis["__dirname"] = path.dirname(fileURLToPath(import.meta.url));
+var PrismaClient = getPrismaClientClass();
+
+// src/lib/prisma.ts
+var connectionString = `${process.env.DATABASE_URL}`;
+var adapter = new PrismaPg({ connectionString });
+var prisma = new PrismaClient({ adapter });
+
+// src/module/medicine/medicine.service.ts
+var getMedicineById = async (id) => {
+  const result = await prisma.medicine.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  return result;
+};
+var getAllMedicine = async ({ search, price, category, page, limit, sortBy, sortOrder }) => {
+  const skip = (page - 1) * limit;
+  const priceNum = Number(price);
+  const andConditions = [];
+  if (search) {
+    andConditions.push({
+      name: {
+        contains: search,
+        mode: "insensitive"
+      }
+    });
+  }
+  if (priceNum) {
+    andConditions.push({
+      price: priceNum
+    });
+  }
+  const result = await prisma.medicine.findMany({
+    take: limit,
+    skip,
+    where: {
+      AND: andConditions
+    },
+    orderBy: sortBy && sortOrder ? {
+      [sortBy]: sortOrder
+    } : { price: "asc" },
+    include: {
+      orders: true
+    }
+  });
+  const total = await prisma.medicine.count({
+    // take : limit,
+    // skip,
+    where: {
+      AND: andConditions
+    }
+  });
+  return {
+    data: result,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
+  };
+};
+var medicineService = {
+  getMedicineById,
+  getAllMedicine
+};
+
+// src/module/medicine/medicine.controller.ts
+var getMedicineById2 = async (req, res) => {
+  try {
+    const result = await medicineService.getMedicineById(req.params.id);
+    res.status(400).json(result);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+var getAllMedicine2 = async (req, res) => {
+  try {
+    const { search } = req.query;
+    const searchString = typeof search === "string" ? search : void 0;
+    const { price } = req.query;
+    const priceString = typeof price === "string" ? price : void 0;
+    const { category } = req.query;
+    const categoryString = typeof category === "string" ? category : void 0;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const sortBy = req.query.sortBy ?? "price";
+    const sortOrder = req.query.sortOrder ?? "asc";
+    const result = await medicineService.getAllMedicine({ search: searchString, price: priceString, category: categoryString, page, limit, sortBy, sortOrder });
+    res.status(400).json(result);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+var medicineController = {
+  getMedicineById: getMedicineById2,
+  getAllMedicine: getAllMedicine2
+};
+
+// src/module/medicine/medicine.route.ts
+var router = express.Router();
+router.get("/", medicineController.getAllMedicine);
+router.get("/:id", medicineController.getMedicineById);
+var medicineRouter = router;
+
+// src/module/category/category.route.ts
+import express2 from "express";
+
+// src/module/category/category.service.ts
+var createCategory = async (data) => {
+  const result = await prisma.category.create({
+    data
+  });
+  return result;
+};
+var getSingleCategory = async (categoryId) => {
+  const result = await prisma.category.findUnique({
+    where: {
+      id: categoryId
+    },
+    include: {
+      medicines: {
+        select: {
+          name: true,
+          price: true
+        }
+      }
+    }
+  });
+  return result;
+};
+var getAllCategory = async () => {
+  const result = await prisma.category.findMany();
+  return result;
+};
+var categoryService = {
+  createCategory,
+  getSingleCategory,
+  getAllCategory
+};
+
+// src/module/category/category.controller.ts
+var createCategory2 = async (req, res) => {
+  try {
+    const result = await categoryService.createCategory(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    res.send(error);
+  }
+};
+var getCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const result = await categoryService.getSingleCategory(categoryId);
+    res.status(500).json(result);
+  } catch (error) {
+    console.log("Category is not found");
+    res.status(404).json(error);
+  }
+};
+var getAllCategory2 = async (req, res) => {
+  try {
+    const result = await categoryService.getAllCategory();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+var categoryController = {
+  createCategory: createCategory2,
+  getCategory,
+  getAllCategory: getAllCategory2
+};
+
+// src/lib/auth.ts
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import nodemailer from "nodemailer";
+var transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  // Use true for port 465, false for port 587
+  auth: {
+    user: process.env.APP_USER,
+    pass: process.env.APP_PASS
+  }
+});
+var auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql"
+  }),
+  trustedOrigins: [process.env.APP_URL],
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "CUSTOMER",
+        required: false
+      },
+      userStatus: {
+        type: "string",
+        defaultValue: "APPROVED" /* APPROVED */,
+        required: false
+      }
+    }
+  },
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    requireEmailVerification: true
+  },
+  emailVerification: {
+    sendOnSignUp: false,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      try {
+        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+        const info = await transporter.sendMail({
+          from: '"fgg" <u1904067@student.cuet.ac.bd>',
+          to: user.email,
+          subject: "Email verification for Medi Store",
+          text: "Hello world?",
+          html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Email Verification</title>
+      </head>
+      <body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background-color:#2f80ed; padding:20px; text-align:center;">
+                    <h1 style="margin:0; color:#ffffff; font-size:24px;">Medi Store</h1>
+                  </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                  <td style="padding:30px; color:#333333;">
+                    <h2 style="margin-top:0;">Verify your email address</h2>
+                    <p style="font-size:15px; line-height:1.6;">
+                      Thanks for signing up with <strong>Medi Store</strong>.
+                      Please confirm your email address by clicking the button below.
+                    </p>
+
+                    <div style="text-align:center; margin:30px 0;">
+                      <a href="${verificationUrl}"
+                        style="background-color:#2f80ed; color:#ffffff; text-decoration:none;
+                                padding:12px 24px; border-radius:5px; font-size:16px; display:inline-block;">
+                        Verify Email
+                      </a>
+                    </div>
+
+                    <p style="font-size:14px; line-height:1.6; color:#555555;">
+                      If the button doesn\u2019t work, copy and paste this link into your browser:
+                    </p>
+                    <p style="word-break:break-all; font-size:13px; color:#2f80ed;">
+                      ${verificationUrl}
+                    </p>
+
+                    <p style="font-size:14px; color:#777777;">
+                      If you didn\u2019t create an account, you can safely ignore this email.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color:#f0f0f0; padding:15px; text-align:center; font-size:12px; color:#888888;">
+                    \xA9 2026 Medi Store. All rights reserved.
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+                        `
+        });
+        console.log("Message sent:", info.messageId);
+      } catch (error) {
+        console.log("An Error Occur to send Email", error);
+        throw error;
+      }
+    }
+  },
+  socialProviders: {
+    google: {
+      prompt: "select_account consent",
+      accessType: "offline",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    }
+  }
+});
+
+// src/middlewares/auth.ts
+var auth2 = (...roles) => {
+  return async (req, res, next) => {
+    const session = await auth.api.getSession({
+      headers: req.headers
+    });
+    if (!session) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not Authorized!"
+      });
+    }
+    if (!session.user.emailVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Your Email is not Verified. Please Verify your email."
+      });
+    }
+    req.user = {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      role: session.user.role,
+      emailVerified: session.user.emailVerified
+    };
+    if (roles.length && !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden. You don't have permission to this resources."
+      });
+    }
+    next();
+  };
+};
+
+// src/module/category/category.route.ts
+var router2 = express2.Router();
+router2.get("/:categoryId", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getCategory);
+router2.post("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.createCategory);
+router2.get("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getAllCategory);
+var categoryRoute = router2;
+
+// src/app.ts
+import { toNodeHandler } from "better-auth/node";
+import cors from "cors";
+
+// src/module/seller/seller.route.ts
+import express3 from "express";
+
+// src/module/seller/seller.service.ts
+var createMedicine = async (payload) => {
+  const category = await prisma.category.findUniqueOrThrow({
+    where: {
+      id: payload.categoryId
+    }
+  });
+  const result = await prisma.medicine.create({
+    data: {
+      ...payload,
+      categoryName: category?.categoryName ?? ""
+    }
+  });
+  return result;
+};
+var updateMedicine = async (payload, id) => {
+  await prisma.medicine.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  const result = await prisma.medicine.update({
+    where: {
+      id
+    },
+    data: {
+      name: payload.name,
+      price: payload.price,
+      stock: payload.stock
+    }
+  });
+  return result;
+};
+var deleteMedicine = async (id) => {
+  await prisma.medicine.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  try {
+    const result = await prisma.medicine.delete({
+      where: {
+        id
+      }
+    });
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Medicine is not Exists!");
+  }
+};
+var getAllOrder = async () => {
+  const result = await prisma.order.findMany();
+  return result;
+};
+var updateStatus = async (payload, id) => {
+  await prisma.order.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  const result = await prisma.order.update({
+    where: {
+      id
+    },
+    data: {
+      status: payload.status
+    }
+  });
+  return result;
+};
+var sellerServices = {
+  createMedicine,
+  updateMedicine,
+  deleteMedicine,
+  getAllOrder,
+  updateStatus
+};
+
+// src/module/seller/seller.controller.ts
+var createMedicine2 = async (req, res) => {
+  try {
+    const result = await sellerServices.createMedicine(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(404).json(error.message);
+  }
+};
+var updateMedicine2 = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await sellerServices.updateMedicine(req.body, id);
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+var deleteMedicine2 = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await sellerServices.deleteMedicine(id);
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+var getAllOrder2 = async (req, res) => {
+  try {
+    const result = await sellerServices.getAllOrder();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.messaage
+    });
+  }
+};
+var updateStatus2 = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await sellerServices.updateStatus(req.body, id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var sellerController = {
+  createMedicine: createMedicine2,
+  updateMedicine: updateMedicine2,
+  deleteMedicine: deleteMedicine2,
+  getAllOrder: getAllOrder2,
+  updateStatus: updateStatus2
+};
+
+// src/module/seller/seller.route.ts
+var router3 = express3.Router();
+router3.post("/medicines", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), sellerController.createMedicine);
+router3.put("/medicines/:id", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), sellerController.updateMedicine);
+router3.delete("/medicines/:id", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), sellerController.deleteMedicine);
+router3.get("/orders", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), sellerController.getAllOrder);
+router3.patch("/orders/:id", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), sellerController.updateStatus);
+var sellerRouter = router3;
+
+// src/module/orders/orders.route.ts
+import express4 from "express";
+
+// src/module/orders/orders.service.ts
+var createOrder = async (payload, userId) => {
+  const medicine = await prisma.medicine.findUnique({
+    where: {
+      id: payload.medicineId
+    }
+  });
+  console.log("medicine => ", medicine);
+  const result = await prisma.order.create({
+    data: {
+      userId,
+      medicineId: payload.medicineId,
+      status: OrderStatus.PENDING,
+      quantity: payload.quantity,
+      totalAmount: (medicine?.price ?? 0) * payload.quantity,
+      addressId: payload.addressId
+    }
+  });
+  return result;
+};
+var getAllOrder3 = async (id, page, limit) => {
+  const data = await prisma.order.findMany({
+    take: limit,
+    skip: (page - 1) * limit,
+    where: {
+      userId: id
+    }
+  });
+  const total = await prisma.order.count();
+  return { data, total, page, limit, totalPage: Math.ceil(total / limit) };
+};
+var getSingleOrder = async (id) => {
+  const result = await prisma.order.findMany({
+    where: {
+      id
+    }
+  });
+  return result;
+};
+var orderService = {
+  createOrder,
+  getAllOrder: getAllOrder3,
+  getSingleOrder
+};
+
+// src/module/orders/orders.controller.ts
+var createOrder2 = async (req, res) => {
+  try {
+    const result = await orderService.createOrder(req.body, req.user?.id);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getAllOrder4 = async (req, res) => {
+  try {
+    const id = req.user?.id;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const result = await orderService.getAllOrder(id, page, limit);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getSingleOrder2 = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await orderService.getSingleOrder(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var orderController = {
+  createOrder: createOrder2,
+  getAllOrder: getAllOrder4,
+  getSingleOrder: getSingleOrder2
+};
+
+// src/module/orders/orders.route.ts
+var route = express4.Router();
+route.post("/", auth2("ADMIN" /* ADMIN */, "CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */), orderController.createOrder);
+route.get("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), orderController.getAllOrder);
+route.get("/:id", orderController.getSingleOrder);
+var orderRoute = route;
+
+// src/module/admin/admin.route.ts
+import express5 from "express";
+
+// src/module/admin/admin.service.ts
+var getAllUser = async (page, limit) => {
+  const data = await prisma.user.findMany({
+    take: limit,
+    skip: (page - 1) * limit
+  });
+  const totalUser = await prisma.user.count();
+  return { data, page, limit, totalUser, totalPage: Math.ceil(totalUser / limit) };
+};
+var updateUserStatus = async (payload, id) => {
+  console.log("hi");
+  await prisma.user.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  const result = await prisma.user.update({
+    where: {
+      id
+    },
+    data: {
+      userStatus: payload.userStatus
+    }
+  });
+  return result;
+};
+var getStats = async () => {
+  return await prisma.$transaction(async (tx) => {
+    const [totalUser, totalCustomer, totalSeller, totalOrder, totalOrderAmount, totalMedicine, totalCategory] = await Promise.all([
+      await prisma.user.count(),
+      await prisma.user.count({ where: { role: "CUSTOMER" /* CUSTOMER */ } }),
+      await prisma.user.count({ where: { role: "SELLER" /* SELLER */ } }),
+      await prisma.order.count(),
+      await prisma.order.aggregate({ _sum: { totalAmount: true } }),
+      await prisma.medicine.count(),
+      await prisma.category.count()
+    ]);
+    return {
+      totalUser,
+      totalCustomer,
+      totalSeller,
+      totalOrder,
+      totalOrderAmount: totalOrderAmount._sum.totalAmount,
+      totalMedicine,
+      totalCategory
+    };
+  });
+};
+var adminService = {
+  getAllUser,
+  updateUserStatus,
+  getStats
+};
+
+// src/module/admin/admin.controller.ts
+var getAllUser2 = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const result = await adminService.getAllUser(page, limit);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var updateUserStatus2 = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await adminService.updateUserStatus(req.body, id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getStats2 = async (req, res) => {
+  try {
+    const result = await adminService.getStats();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var adminController = {
+  getAllUser: getAllUser2,
+  updateUserStatus: updateUserStatus2,
+  getStats: getStats2
+};
+
+// src/module/admin/admin.route.ts
+var router4 = express5.Router();
+router4.get("/users", auth2("ADMIN" /* ADMIN */), adminController.getAllUser);
+router4.get("/stats", auth2("ADMIN" /* ADMIN */, "SELLER" /* SELLER */), adminController.getStats);
+router4.patch("/users/:id", auth2("ADMIN" /* ADMIN */), adminController.updateUserStatus);
+var adminRoute = router4;
+
+// src/module/customer/customer.route.ts
+import express6 from "express";
+
+// src/module/customer/customer.service.ts
+var getMyProfile = async (id) => {
+  const res = await prisma.user.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  return res;
+};
+var getMyOrder = async (id) => {
+  const res = await prisma.order.findMany({
+    where: {
+      userId: id
+    }
+  });
+  console.log(res);
+  return res;
+};
+var editMyProfile = async (payload, userId) => {
+  const res = await prisma.user.update({
+    where: {
+      id: userId
+    },
+    data: {
+      name: payload.name,
+      email: payload.email
+    }
+  });
+  console.log(res);
+  return res;
+};
+var getSingleOrder3 = async (id) => {
+  const res = await prisma.order.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  return res;
+};
+var addShippingAddress = async (payload, userId) => {
+  const user = await prisma.address.update({
+    where: {
+      userId
+    },
+    data: {
+      city: payload.city
+    }
+  });
+  console.log(user);
+  return user;
+};
+var AddItemToCard = async (payload, userId) => {
+  const res = await prisma.cart.upsert({
+    where: {
+      userId_medicineId: {
+        userId,
+        medicineId: payload.medicineId
+      }
+    },
+    update: {
+      quantity: {
+        increment: 1
+      }
+    },
+    create: {
+      userId,
+      medicineId: payload.medicineId
+    }
+  });
+  console.log(res);
+  return res;
+};
+var getMyCartItem = async (userId) => {
+  const cartItem = await prisma.cart.findMany({
+    where: {
+      userId
+    }
+  });
+  return cartItem;
+};
+var getMySingleCartItem = async (id) => {
+  const cartItem = await prisma.cart.findUnique({
+    where: {
+      id
+    }
+  });
+  console.log(cartItem);
+  return cartItem;
+};
+var DecrementCartItem = async (payload, userId) => {
+  console.log(payload);
+  const checkItem = await prisma.cart.findUnique({
+    where: {
+      userId_medicineId: {
+        userId,
+        medicineId: payload.medicineId
+      }
+    }
+  });
+  console.log(checkItem);
+  if (checkItem?.quantity === 0 || checkItem?.quantity === null) {
+    throw new Error("Quantity Cannot be Negative");
+  }
+  const res = await prisma.cart.upsert({
+    where: {
+      userId_medicineId: {
+        userId,
+        medicineId: payload.medicineId
+      }
+    },
+    update: {
+      quantity: {
+        decrement: 1
+      }
+    },
+    create: {
+      userId,
+      medicineId: payload.medicineId
+    }
+  });
+  return res;
+};
+var deleteCartItem = async (id) => {
+  const res = await prisma.cart.delete({
+    where: {
+      id
+    }
+  });
+  console.log(res);
+  return res;
+};
+var createAddress = async (payload, userId) => {
+  console.log(payload);
+  const res = await prisma.address.upsert({
+    where: {
+      userId
+    },
+    update: {
+      ...payload,
+      userId
+    },
+    create: {
+      ...payload,
+      userId
+    }
+  });
+  console.log(res);
+  return res;
+};
+var getMyAddress = async (userId) => {
+  console.log(userId);
+  const res = await prisma.address.findUniqueOrThrow({
+    where: {
+      userId
+    }
+  });
+  console.log(res);
+  return res;
+};
+var customerService = {
+  getMyProfile,
+  getMyOrder,
+  editMyProfile,
+  getSingleOrder: getSingleOrder3,
+  addShippingAddress,
+  AddItemToCard,
+  getMyCartItem,
+  getMySingleCartItem,
+  DecrementCartItem,
+  deleteCartItem,
+  createAddress,
+  getMyAddress
+};
+
+// src/module/customer/customer.controller.ts
+var getMyProfile2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const { id } = req.user;
+    const result = await customerService.getMyProfile(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getMyOrder2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const { id } = req.user;
+    const result = await customerService.getMyOrder(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var editMyProfile2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const userId = req.user.id;
+    const result = await customerService.editMyProfile(req.body, userId);
+    console.log(result);
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getSingleOrder4 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const id = req.params.id;
+    const result = await customerService.getSingleOrder(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var addShippingAddress2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const userId = req.user.id;
+    const result = await customerService.addShippingAddress(req.body, userId);
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var AddItemToCard2 = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(404).json({
+        message: false,
+        error: "Please Login to Add Item in your Cart"
+      });
+    }
+    const userId = req.user?.id;
+    const result = await customerService.AddItemToCard(req.body, userId);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var DecrementCartItem2 = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(404).json({
+        message: false,
+        error: "Please Login to Add Item in your Cart"
+      });
+    }
+    const userId = req.user?.id;
+    const result = await customerService.DecrementCartItem(req.body, userId);
+    console.log(result);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getMyCartItem2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const userId = req.user.id;
+    const result = await customerService.getMyCartItem(userId);
+    console.log(result);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getMySingleCartItem2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const userId = req.user.id;
+    const { id } = req.params;
+    const result = await customerService.getMySingleCartItem(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var deleteCartItem2 = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(404).json({
+        message: false,
+        error: "Please Login to Add Item in your Cart"
+      });
+    }
+    const id = await req.params.id;
+    const result = await customerService.deleteCartItem(id);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var createAddress2 = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const userId = req.user.id;
+    const result = await customerService.createAddress(req.body, userId);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var getMyAddress2 = async (req, res) => {
+  try {
+    console.log("hi");
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const userId = req.user.id;
+    const result = await customerService.getMyAddress(userId);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+var customerController = {
+  getMyProfile: getMyProfile2,
+  getMyOrder: getMyOrder2,
+  editMyProfile: editMyProfile2,
+  getSingleOrder: getSingleOrder4,
+  addShippingAddress: addShippingAddress2,
+  AddItemToCard: AddItemToCard2,
+  getMyCartItem: getMyCartItem2,
+  getMySingleCartItem: getMySingleCartItem2,
+  DecrementCartItem: DecrementCartItem2,
+  deleteCartItem: deleteCartItem2,
+  createAddress: createAddress2,
+  getMyAddress: getMyAddress2
+};
+
+// src/module/customer/customer.route.ts
+var router5 = express6.Router();
+router5.get("/me", auth2("CUSTOMER" /* CUSTOMER */), customerController.getMyProfile);
+router5.get("/orders", auth2("CUSTOMER" /* CUSTOMER */), customerController.getMyOrder);
+router5.get("/orders/:id", auth2("CUSTOMER" /* CUSTOMER */), customerController.getSingleOrder);
+router5.post("/cart", auth2("CUSTOMER" /* CUSTOMER */), customerController.AddItemToCard);
+router5.post("/decrement", auth2("CUSTOMER" /* CUSTOMER */), customerController.DecrementCartItem);
+router5.get("/cart", auth2("CUSTOMER" /* CUSTOMER */), customerController.getMyCartItem);
+router5.get("/cart/:id", auth2("CUSTOMER" /* CUSTOMER */), customerController.getMySingleCartItem);
+router5.put("/profile", auth2("CUSTOMER" /* CUSTOMER */), customerController.editMyProfile);
+router5.put("/checkout", auth2("CUSTOMER" /* CUSTOMER */), customerController.addShippingAddress);
+router5.delete("/:id", auth2("CUSTOMER" /* CUSTOMER */), customerController.deleteCartItem);
+router5.post("/address", auth2("CUSTOMER" /* CUSTOMER */), customerController.createAddress);
+router5.get("/my-address", auth2("CUSTOMER" /* CUSTOMER */), customerController.getMyAddress);
+var customerRouter = router5;
+
+// src/app.ts
+var app = express7();
+app.use(cors({
+  origin: process.env.APP_URL || "http://localhost:3000",
+  credentials: true
+}));
+app.use(express7.json());
+app.use("/api/auth", customerRouter);
+app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use("/api/categories", categoryRoute);
+app.use("/api/medicines", medicineRouter);
+app.use("/api/seller", sellerRouter);
+app.use("/api/orders", orderRoute);
+app.use("/api/admin", adminRoute);
+app.get("/", (req, res) => {
+  res.send("Hello World !!");
+});
+var app_default = app;
+
+// src/server.ts
+var PORT = process.env.PORT || 5e3;
+async function main() {
+  try {
+    await prisma.$connect();
+    console.log("Database connection successfully");
+    app_default.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.log("error => ", error);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
+}
+main();
+//! customer
+//! better auth
+//! better auth main handler
+//! medicine
+//! seller
+//! orders
+//! admin
