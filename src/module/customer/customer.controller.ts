@@ -277,6 +277,73 @@ const getMyAddress = async(req: Request, res : Response) => {
   }
 }
 
+const createReview = async(req: Request, res : Response) => {
+  try {
+
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
+      })
+    }
+
+    const userId = req.user.id as string ;
+    const result = await customerService.createReview(req.body , userId as string);
+
+    res.status(200).json(result);
+  } catch (error : any) {
+    res.status(500).json({
+      success : false,
+      message : error.message
+    })
+  }
+}
+
+const getReview = async(req: Request, res : Response) => {
+  try {
+
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
+      })
+    }
+
+    const userId = req.user.id as string ;
+    const result = await customerService.getReview(userId as string);
+
+    res.status(200).json(result);
+  } catch (error : any) {
+    res.status(500).json({
+      success : false,
+      message : error.message
+    })
+  }
+}
+
+const getSingleMedicineReview = async(req: Request, res : Response) => {
+  try {
+
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
+      })
+    }
+
+    const {medicineId} = req.params ;
+    console.log(medicineId);
+    const result = await customerService.getSingleMedicineReview(medicineId as string);
+
+    res.status(200).json(result);
+  } catch (error : any) {
+    res.status(500).json({
+      success : false,
+      message : error.message
+    })
+  }
+}
+
 export const customerController = {
-  getMyProfile, getMyOrder, editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard,getMyCartItem, getMySingleCartItem, DecrementCartItem, deleteCartItem, createAddress, getMyAddress
+  getMyProfile, getMyOrder, editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard,getMyCartItem, getMySingleCartItem, DecrementCartItem, deleteCartItem, createAddress, getMyAddress, createReview, getReview, getSingleMedicineReview
 }

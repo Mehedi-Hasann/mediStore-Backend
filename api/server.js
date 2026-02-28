@@ -195,10 +195,10 @@ var createCategory = async (data) => {
   });
   return result;
 };
-var getSingleCategory = async (categoryId) => {
+var getSingleCategory = async (categoryName) => {
   const result = await prisma.category.findUnique({
     where: {
-      id: categoryId
+      categoryName
     },
     include: {
       medicines: {
@@ -232,8 +232,8 @@ var createCategory2 = async (req, res) => {
 };
 var getCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params;
-    const result = await categoryService.getSingleCategory(categoryId);
+    const { categoryName } = req.params;
+    const result = await categoryService.getSingleCategory(categoryName);
     res.status(500).json(result);
   } catch (error) {
     console.log("Category is not found");
@@ -262,7 +262,6 @@ var transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
-  // Use true for port 465, false for port 587
   auth: {
     user: process.env.APP_USER,
     pass: process.env.APP_PASS
@@ -272,7 +271,10 @@ var auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql"
   }),
-  trustedOrigins: [process.env.APP_URL],
+  trustedOrigins: [
+    "http://localhost:3000",
+    process.env.APP_URL
+  ],
   user: {
     additionalFields: {
       role: {
@@ -394,7 +396,7 @@ var auth2 = (...roles) => {
     if (!session) {
       return res.status(401).json({
         success: false,
-        message: "You are not Authorized!"
+        message: `You are not Authorized!!`
       });
     }
     if (!session.user.emailVerified) {
@@ -422,9 +424,9 @@ var auth2 = (...roles) => {
 
 // src/module/category/category.route.ts
 var router2 = express2.Router();
-router2.get("/:categoryId", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getCategory);
-router2.post("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.createCategory);
 router2.get("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getAllCategory);
+router2.get("/:categoryName", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getCategory);
+router2.post("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.createCategory);
 var categoryRoute = router2;
 
 // src/app.ts
@@ -436,15 +438,16 @@ import express3 from "express";
 
 // src/module/seller/seller.service.ts
 var createMedicine = async (payload) => {
+  console.log(payload);
   const category = await prisma.category.findUniqueOrThrow({
     where: {
-      id: payload.categoryId
+      categoryName: payload.categoryName
     }
   });
   const result = await prisma.medicine.create({
     data: {
       ...payload,
-      categoryName: category?.categoryName ?? ""
+      categoryId: category.id
     }
   });
   return result;
@@ -1229,7 +1232,7 @@ app.use(cors({
 }));
 app.use(express7.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
-app.use("/api/auth", customerRouter);
+app.use("/api/customer", customerRouter);
 app.use("/api/categories", categoryRoute);
 app.use("/api/medicines", medicineRouter);
 app.use("/api/seller", sellerRouter);

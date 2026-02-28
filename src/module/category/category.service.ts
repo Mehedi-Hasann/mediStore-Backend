@@ -10,10 +10,10 @@ const createCategory = async(data : Omit<Category, "id">) => {
   return result;
 }
 
-const getSingleCategory = async(categoryId : string) => {
+const getSingleCategory = async(categoryName : string) => {
   const result = await prisma.category.findUnique({
     where : {
-      id : categoryId
+      categoryName
     },
     include : {
       medicines : {
@@ -24,7 +24,6 @@ const getSingleCategory = async(categoryId : string) => {
       }
     }
   })
-  // console.log(result);
 
   return result;
 

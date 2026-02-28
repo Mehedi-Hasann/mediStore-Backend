@@ -20,13 +20,13 @@ app.use(cors({
 app.use(express.json());
 
 
-//! customer
-app.use("/api/customer",customerRouter);
-
-
 //! better auth
 //! better auth main handler
 app.all('/api/auth/*splat', toNodeHandler(auth));
+
+
+//! customer
+app.use("/api/customer",customerRouter);
 
 
 //! medicine

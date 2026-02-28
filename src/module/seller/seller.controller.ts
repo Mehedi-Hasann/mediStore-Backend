@@ -5,12 +5,11 @@ import { Medicine, Order } from "../../generated/client";
 
 const createMedicine = async(req: Request, res : Response) => {
   try {
-    // console.log(req.body);
+
     const result = await sellerServices.createMedicine(req.body);
 
     res.status(201).json(result);
   } catch (error : any) {
-    // console.log(error);
     res.status(404).json(error.message)
   }
 }

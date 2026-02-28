@@ -1,4 +1,4 @@
-import { Address, User } from "../../generated/client";
+import { Address, Review, User } from "../../generated/client";
 import { prisma } from "../../lib/prisma"
 import { EditUser } from "../../types/type";
 
@@ -188,6 +188,40 @@ const getMyAddress = async (userId : string) => {
   return res;
 }
 
+const createReview = async (payload : Omit<Review, "userId">, userId : string) => {
+  console.log(payload);
+  const res = await prisma.review.create({
+    data : {
+      ...payload,
+      userId
+    }
+  })
+  console.log(res);
+  return res;
+}
+
+const getReview = async (userId : string) => {
+
+  const res = await prisma.review.findMany({
+    where : {
+      userId
+    }
+  })
+  console.log(res);
+  return res;
+}
+
+const getSingleMedicineReview = async (medicineId : string) => {
+
+  const res = await prisma.review.findMany({
+    where : {
+      medicineId
+    }
+  })
+  // console.log(res);
+  return res;
+}
+
 export const customerService = {
-  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard, getMyCartItem, getMySingleCartItem, DecrementCartItem,deleteCartItem, createAddress, getMyAddress
+  getMyProfile,getMyOrder,editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard, getMyCartItem, getMySingleCartItem, DecrementCartItem,deleteCartItem, createAddress, getMyAddress, createReview, getReview, getSingleMedicineReview
 }
