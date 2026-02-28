@@ -29,6 +29,7 @@ export type ReviewMinAggregateOutputType = {
   userId: string | null
   medicineId: string | null
   rating: $Enums.Rating | null
+  description: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type ReviewMaxAggregateOutputType = {
   userId: string | null
   medicineId: string | null
   rating: $Enums.Rating | null
+  description: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type ReviewCountAggregateOutputType = {
   userId: number
   medicineId: number
   rating: number
+  description: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type ReviewMinAggregateInputType = {
   userId?: true
   medicineId?: true
   rating?: true
+  description?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type ReviewMaxAggregateInputType = {
   userId?: true
   medicineId?: true
   rating?: true
+  description?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type ReviewCountAggregateInputType = {
   userId?: true
   medicineId?: true
   rating?: true
+  description?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -157,7 +163,8 @@ export type ReviewGroupByOutputType = {
   id: string
   userId: string
   medicineId: string
-  rating: $Enums.Rating
+  rating: $Enums.Rating | null
+  description: string
   createdAt: Date
   updatedAt: Date
   _count: ReviewCountAggregateOutputType | null
@@ -187,7 +194,8 @@ export type ReviewWhereInput = {
   id?: Prisma.StringFilter<"Review"> | string
   userId?: Prisma.StringFilter<"Review"> | string
   medicineId?: Prisma.StringFilter<"Review"> | string
-  rating?: Prisma.EnumRatingFilter<"Review"> | $Enums.Rating
+  rating?: Prisma.EnumRatingNullableFilter<"Review"> | $Enums.Rating | null
+  description?: Prisma.StringFilter<"Review"> | string
   createdAt?: Prisma.DateTimeFilter<"Review"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Review"> | Date | string
   medicine?: Prisma.XOR<Prisma.MedicineScalarRelationFilter, Prisma.MedicineWhereInput>
@@ -197,7 +205,8 @@ export type ReviewOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   medicineId?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
+  rating?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   medicine?: Prisma.MedicineOrderByWithRelationInput
@@ -210,7 +219,8 @@ export type ReviewWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ReviewWhereInput | Prisma.ReviewWhereInput[]
   userId?: Prisma.StringFilter<"Review"> | string
   medicineId?: Prisma.StringFilter<"Review"> | string
-  rating?: Prisma.EnumRatingFilter<"Review"> | $Enums.Rating
+  rating?: Prisma.EnumRatingNullableFilter<"Review"> | $Enums.Rating | null
+  description?: Prisma.StringFilter<"Review"> | string
   createdAt?: Prisma.DateTimeFilter<"Review"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Review"> | Date | string
   medicine?: Prisma.XOR<Prisma.MedicineScalarRelationFilter, Prisma.MedicineWhereInput>
@@ -220,7 +230,8 @@ export type ReviewOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   medicineId?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
+  rating?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ReviewCountOrderByAggregateInput
@@ -235,7 +246,8 @@ export type ReviewScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Review"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Review"> | string
   medicineId?: Prisma.StringWithAggregatesFilter<"Review"> | string
-  rating?: Prisma.EnumRatingWithAggregatesFilter<"Review"> | $Enums.Rating
+  rating?: Prisma.EnumRatingNullableWithAggregatesFilter<"Review"> | $Enums.Rating | null
+  description?: Prisma.StringWithAggregatesFilter<"Review"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Review"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Review"> | Date | string
 }
@@ -243,7 +255,8 @@ export type ReviewScalarWhereWithAggregatesInput = {
 export type ReviewCreateInput = {
   id?: string
   userId: string
-  rating: $Enums.Rating
+  rating?: $Enums.Rating | null
+  description: string
   createdAt?: Date | string
   updatedAt?: Date | string
   medicine: Prisma.MedicineCreateNestedOneWithoutReviewsInput
@@ -253,7 +266,8 @@ export type ReviewUncheckedCreateInput = {
   id?: string
   userId: string
   medicineId: string
-  rating: $Enums.Rating
+  rating?: $Enums.Rating | null
+  description: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -261,7 +275,8 @@ export type ReviewUncheckedCreateInput = {
 export type ReviewUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   medicine?: Prisma.MedicineUpdateOneRequiredWithoutReviewsNestedInput
@@ -271,7 +286,8 @@ export type ReviewUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   medicineId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -280,7 +296,8 @@ export type ReviewCreateManyInput = {
   id?: string
   userId: string
   medicineId: string
-  rating: $Enums.Rating
+  rating?: $Enums.Rating | null
+  description: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -288,7 +305,8 @@ export type ReviewCreateManyInput = {
 export type ReviewUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -297,7 +315,8 @@ export type ReviewUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   medicineId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +336,7 @@ export type ReviewCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   medicineId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -326,6 +346,7 @@ export type ReviewMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   medicineId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -335,6 +356,7 @@ export type ReviewMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   medicineId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -381,14 +403,15 @@ export type ReviewUncheckedUpdateManyWithoutMedicineNestedInput = {
   deleteMany?: Prisma.ReviewScalarWhereInput | Prisma.ReviewScalarWhereInput[]
 }
 
-export type EnumRatingFieldUpdateOperationsInput = {
-  set?: $Enums.Rating
+export type NullableEnumRatingFieldUpdateOperationsInput = {
+  set?: $Enums.Rating | null
 }
 
 export type ReviewCreateWithoutMedicineInput = {
   id?: string
   userId: string
-  rating: $Enums.Rating
+  rating?: $Enums.Rating | null
+  description: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -396,7 +419,8 @@ export type ReviewCreateWithoutMedicineInput = {
 export type ReviewUncheckedCreateWithoutMedicineInput = {
   id?: string
   userId: string
-  rating: $Enums.Rating
+  rating?: $Enums.Rating | null
+  description: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -434,7 +458,8 @@ export type ReviewScalarWhereInput = {
   id?: Prisma.StringFilter<"Review"> | string
   userId?: Prisma.StringFilter<"Review"> | string
   medicineId?: Prisma.StringFilter<"Review"> | string
-  rating?: Prisma.EnumRatingFilter<"Review"> | $Enums.Rating
+  rating?: Prisma.EnumRatingNullableFilter<"Review"> | $Enums.Rating | null
+  description?: Prisma.StringFilter<"Review"> | string
   createdAt?: Prisma.DateTimeFilter<"Review"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Review"> | Date | string
 }
@@ -442,7 +467,8 @@ export type ReviewScalarWhereInput = {
 export type ReviewCreateManyMedicineInput = {
   id?: string
   userId: string
-  rating: $Enums.Rating
+  rating?: $Enums.Rating | null
+  description: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -450,7 +476,8 @@ export type ReviewCreateManyMedicineInput = {
 export type ReviewUpdateWithoutMedicineInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -458,7 +485,8 @@ export type ReviewUpdateWithoutMedicineInput = {
 export type ReviewUncheckedUpdateWithoutMedicineInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -466,7 +494,8 @@ export type ReviewUncheckedUpdateWithoutMedicineInput = {
 export type ReviewUncheckedUpdateManyWithoutMedicineInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.EnumRatingFieldUpdateOperationsInput | $Enums.Rating
+  rating?: Prisma.NullableEnumRatingFieldUpdateOperationsInput | $Enums.Rating | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -478,6 +507,7 @@ export type ReviewSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   userId?: boolean
   medicineId?: boolean
   rating?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   medicine?: boolean | Prisma.MedicineDefaultArgs<ExtArgs>
@@ -488,6 +518,7 @@ export type ReviewSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   userId?: boolean
   medicineId?: boolean
   rating?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   medicine?: boolean | Prisma.MedicineDefaultArgs<ExtArgs>
@@ -498,6 +529,7 @@ export type ReviewSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   userId?: boolean
   medicineId?: boolean
   rating?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   medicine?: boolean | Prisma.MedicineDefaultArgs<ExtArgs>
@@ -508,11 +540,12 @@ export type ReviewSelectScalar = {
   userId?: boolean
   medicineId?: boolean
   rating?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "medicineId" | "rating" | "createdAt" | "updatedAt", ExtArgs["result"]["review"]>
+export type ReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "medicineId" | "rating" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["review"]>
 export type ReviewInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   medicine?: boolean | Prisma.MedicineDefaultArgs<ExtArgs>
 }
@@ -532,7 +565,8 @@ export type $ReviewPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: string
     userId: string
     medicineId: string
-    rating: $Enums.Rating
+    rating: $Enums.Rating | null
+    description: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["review"]>
@@ -963,6 +997,7 @@ export interface ReviewFieldRefs {
   readonly userId: Prisma.FieldRef<"Review", 'String'>
   readonly medicineId: Prisma.FieldRef<"Review", 'String'>
   readonly rating: Prisma.FieldRef<"Review", 'Rating'>
+  readonly description: Prisma.FieldRef<"Review", 'String'>
   readonly createdAt: Prisma.FieldRef<"Review", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Review", 'DateTime'>
 }

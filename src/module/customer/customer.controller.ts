@@ -279,6 +279,7 @@ const getMyAddress = async(req: Request, res : Response) => {
 
 const createReview = async(req: Request, res : Response) => {
   try {
+    console.log('hoi na kno');
 
     if(!req.user){
       return res.status(404).json({

@@ -7,9 +7,12 @@ const getMedicineById = async(id : string) => {
   const result = await prisma.medicine.findUniqueOrThrow({
     where : {
       id 
+    },
+    include : {
+      reviews : true
     }
   })
-  // console.log(result);
+  console.log(result);
 
   return result;
 }
@@ -54,9 +57,11 @@ const getAllMedicine = async({search, price, category, page, limit, sortBy, sort
       [sortBy] : sortOrder
     } : {price : "asc"},
     include : {
-      orders : true
+      orders : true,
+      reviews : true
     }
   });
+  // console.log(result);
   
   const total = await prisma.medicine.count({
     // take : limit,

@@ -154,21 +154,21 @@ export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
 }
 
-export type EnumRatingFilter<$PrismaModel = never> = {
-  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel>
-  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRatingFilter<$PrismaModel> | $Enums.Rating
+export type EnumRatingNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRatingNullableFilter<$PrismaModel> | $Enums.Rating | null
 }
 
-export type EnumRatingWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel>
-  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRatingWithAggregatesFilter<$PrismaModel> | $Enums.Rating
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumRatingFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumRatingFilter<$PrismaModel>
+export type EnumRatingNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRatingNullableWithAggregatesFilter<$PrismaModel> | $Enums.Rating | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRatingNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRatingNullableFilter<$PrismaModel>
 }
 
 export type BoolFilter<$PrismaModel = never> = {
@@ -362,21 +362,21 @@ export type NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
 }
 
-export type NestedEnumRatingFilter<$PrismaModel = never> = {
-  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel>
-  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRatingFilter<$PrismaModel> | $Enums.Rating
+export type NestedEnumRatingNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRatingNullableFilter<$PrismaModel> | $Enums.Rating | null
 }
 
-export type NestedEnumRatingWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel>
-  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRatingWithAggregatesFilter<$PrismaModel> | $Enums.Rating
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumRatingFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumRatingFilter<$PrismaModel>
+export type NestedEnumRatingNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rating | Prisma.EnumRatingFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Rating[] | Prisma.ListEnumRatingFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRatingNullableWithAggregatesFilter<$PrismaModel> | $Enums.Rating | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRatingNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRatingNullableFilter<$PrismaModel>
 }
 
 export type NestedBoolFilter<$PrismaModel = never> = {

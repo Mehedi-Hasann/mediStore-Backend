@@ -21,12 +21,12 @@ declare global {
 
 export const auth = (...roles : any) => {
   return async(req: Request, res: Response, next: NextFunction) => {
-    // console.log("Expected role => ",roles);
+    console.log("Expected role => ",roles);
 
     const session = await betterAuth.api.getSession({
       headers : req.headers as any
     });
-    // console.log({session : session?.user.role});
+    console.log(session);
 
     if(!session){
       return res.status(401).json({
@@ -48,7 +48,7 @@ export const auth = (...roles : any) => {
       role : session.user.role as string,
       emailVerified : session.user.emailVerified
     }
-    // console.log("Requested role => ",req.user.role);
+    console.log("Requested role => ",req.user.role);
     // console.log(roles.includes(req.user.role as UserRole));
 
     if(roles.length && !roles.includes(req.user.role as UserRole)){

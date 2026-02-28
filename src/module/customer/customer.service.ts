@@ -189,14 +189,14 @@ const getMyAddress = async (userId : string) => {
 }
 
 const createReview = async (payload : Omit<Review, "userId">, userId : string) => {
-  console.log(payload);
+  console.log('payload ',payload);
   const res = await prisma.review.create({
     data : {
       ...payload,
       userId
     }
   })
-  console.log(res);
+  console.log('res ',res);
   return res;
 }
 

@@ -31,7 +31,7 @@ const getAllMedicine = async(req: Request, res: Response) => {
     
     const result = await medicineService.getAllMedicine({search : searchString, price : priceString, category: categoryString, page, limit, sortBy, sortOrder});
 
-    res.status(400).json(result)
+    res.status(200).json(result)
   } catch (error) {
     res.status(404).json(error)
   }
