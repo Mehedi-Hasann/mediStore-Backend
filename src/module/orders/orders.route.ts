@@ -5,8 +5,8 @@ import { UserRole } from "../../constants/enum";
 
 const route = express.Router();
 
-route.post("/",auth(UserRole.ADMIN,UserRole.CUSTOMER,UserRole.SELLER),orderController.createOrder);
-route.get("/",auth(UserRole.SELLER,UserRole.ADMIN),orderController.getAllOrder);
+route.post("/",auth(UserRole.CUSTOMER),orderController.createOrder);
+route.get("/",auth(UserRole.CUSTOMER,UserRole.SELLER,UserRole.ADMIN),orderController.getAllOrder);
 route.get("/:id",orderController.getSingleOrder);
 
 

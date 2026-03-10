@@ -8,9 +8,11 @@ import { sellerRouter } from "./module/seller/seller.route";
 import { orderRoute } from "./module/orders/orders.route";
 import { adminRoute } from "./module/admin/admin.route";
 import { customerRouter } from "./module/customer/customer.route";
+import cookieParser from "cookie-parser";
 
 
 const app = express();
+// app.use(cookieParser());
 
 app.use(cors({
   origin : process.env.APP_URL || "http://localhost:3000",

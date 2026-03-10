@@ -18,15 +18,19 @@ declare global {
 }
 
 
-
 export const auth = (...roles : any) => {
   return async(req: Request, res: Response, next: NextFunction) => {
-    console.log("Expected role => ",roles);
 
-    const session = await betterAuth.api.getSession({
-      headers : req.headers as any
-    });
-    console.log(session);
+const session = await betterAuth.api.getSession({
+  headers: {
+    cookie: req.headers.cookie || ""
+  }
+});
+    // console.log(session?.session);
+    // console.log("Cookies => ", req.headers.cookie);
+    // console.log(req.body);
+    // console.log("Expected role => ",roles);
+    // console.log(session);
 
     if(!session){
       return res.status(401).json({
@@ -49,7 +53,6 @@ export const auth = (...roles : any) => {
       emailVerified : session.user.emailVerified
     }
     console.log("Requested role => ",req.user.role);
-    // console.log(roles.includes(req.user.role as UserRole));
 
     if(roles.length && !roles.includes(req.user.role as UserRole)){
       return res.status(403).json({
@@ -57,9 +60,7 @@ export const auth = (...roles : any) => {
         message : "Forbidden. You don't have permission to this resources."
       })
     }
-    // console.log(roles.length);
 
-    // console.log("ok");
     next()
   }
 }

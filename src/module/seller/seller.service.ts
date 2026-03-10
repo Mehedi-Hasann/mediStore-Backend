@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { Medicine, Order } from "../../generated/client";
 
 const createMedicine = async(payload : Medicine) => {
-  console.log(payload);
+  // console.log(payload);
   // if(!payload.categoryId){
   //   throw new Error("You must Provide Category Id")
   // }
@@ -60,7 +60,7 @@ const deleteMedicine = async(id : string) => {
 
     return result;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw new Error("Medicine is not Exists!")
   }
 }

@@ -26,7 +26,7 @@ async function seedAdmin() {
     if(isExist){
       throw new Error("Admin Already Exist.")
     };
-    const signUpAdmin = await fetch("http://localhost:5000/api/auth/sign-up/email", {
+    const signUpAdmin = await fetch("https://medi-store-backend-omega.vercel.app/api/auth/sign-up/email", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

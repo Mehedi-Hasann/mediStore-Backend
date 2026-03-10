@@ -20,7 +20,7 @@ const getMyOrder = async (id : string) => {
       userId : id
     }
   })
-  console.log(res);
+  // console.log(res);
   return res;
 }
 
@@ -34,7 +34,7 @@ const editMyProfile = async (payload : EditUser, userId : string) => {
       email : payload.email
     }
   })
-  console.log(res);
+  // console.log(res);
 
   return res;
 }
@@ -59,7 +59,7 @@ const addShippingAddress = async (payload : {city : string}, userId : string) =>
       city : payload.city
     }
   })
-  console.log(user);
+  // console.log(user);
 
   return user;
 }
@@ -83,7 +83,7 @@ const AddItemToCard = async(payload : {medicineId : string}, userId : string) =>
       medicineId : payload.medicineId
     }
   })
-  console.log(res);
+  // console.log(res);
 
   return res;
 }
@@ -105,12 +105,12 @@ const getMySingleCartItem = async (id : string) => {
       id
     }
   })
-  console.log(cartItem);
+  // console.log(cartItem);
   return cartItem;
 }
 
 const DecrementCartItem = async(payload : {medicineId : string}, userId : string) => {
-  console.log(payload);
+  // console.log(payload);
   const checkItem = await prisma.cart.findUnique({
         where : {
           userId_medicineId : {
@@ -119,7 +119,7 @@ const DecrementCartItem = async(payload : {medicineId : string}, userId : string
           }
         }
   })
-  console.log(checkItem);
+  // console.log(checkItem);
   if(checkItem?.quantity === 0 || checkItem?.quantity === null){
     throw new Error ("Quantity Cannot be Negative")
   }
@@ -153,13 +153,13 @@ const deleteCartItem = async(id : string) => {
       id
     }
   })
-  console.log(res);
+  // console.log(res);
 
   return res;
 }
 
 const createAddress = async (payload : Address, userId : string) => {
-  console.log(payload);
+  // console.log(payload);
   const res = await prisma.address.upsert({
     where : {
       userId
@@ -173,30 +173,30 @@ const createAddress = async (payload : Address, userId : string) => {
       userId
     }
   })
-  console.log(res);
+  // console.log(res);
   return res;
 }
 
 const getMyAddress = async (userId : string) => {
-  console.log(userId);
+  // console.log(userId);
   const res = await prisma.address.findUniqueOrThrow({
     where : {
       userId
     }
   })
-  console.log(res);
+  // console.log(res);
   return res;
 }
 
 const createReview = async (payload : Omit<Review, "userId">, userId : string) => {
-  console.log('payload ',payload);
+  // console.log('payload ',payload);
   const res = await prisma.review.create({
     data : {
       ...payload,
       userId
     }
   })
-  console.log('res ',res);
+  // console.log('res ',res);
   return res;
 }
 
@@ -207,7 +207,7 @@ const getReview = async (userId : string) => {
       userId
     }
   })
-  console.log(res);
+  // console.log(res);
   return res;
 }
 

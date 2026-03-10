@@ -18,9 +18,13 @@ router.put('/checkout',auth(UserRole.CUSTOMER),customerController.addShippingAdd
 router.delete('/:id',auth(UserRole.CUSTOMER),customerController.deleteCartItem);
 
 router.post('/address',auth(UserRole.CUSTOMER),customerController.createAddress);
+
+
 router.post('/review',auth(UserRole.CUSTOMER),customerController.createReview);
+
+
 router.get('/review',auth(UserRole.CUSTOMER,UserRole.ADMIN,UserRole.SELLER),customerController.getReview);
-router.get('/review/:medicineId',auth(UserRole.CUSTOMER,UserRole.ADMIN,UserRole.SELLER),customerController.getSingleMedicineReview);
+router.get('/review/:medicineId',auth(UserRole.CUSTOMER,UserRole.ADMIN,UserRole.SELLER),customerController.getSingleMedicineReview);                    
 router.get('/my-address',auth(UserRole.CUSTOMER),customerController.getMyAddress);
 
 

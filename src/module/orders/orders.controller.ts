@@ -5,7 +5,6 @@ import { Order } from "../../generated/client";
 const createOrder = async(req: Request, res: Response) => {
   try {
     // console.log(req.body);
-    // console.log(req.user?.id);
     const result = await orderService.createOrder(req.body as Order, req.user?.id as string);
 
     res.status(201).json(result);

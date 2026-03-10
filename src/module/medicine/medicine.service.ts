@@ -12,7 +12,7 @@ const getMedicineById = async(id : string) => {
       reviews : true
     }
   })
-  console.log(result);
+  // console.log(result);
 
   return result;
 }
