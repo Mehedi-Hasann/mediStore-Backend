@@ -21,6 +21,9 @@ const getAllMedicine = async(req: Request, res: Response) => {
     const priceString = typeof price==='string' ? price : undefined;
 
     const {category} = req.query;
+    // if(category===''){
+
+    // }
     const categoryString = typeof category==='string' ? category : undefined
 
     const page = Number(req.query.page) || 1;
@@ -28,8 +31,11 @@ const getAllMedicine = async(req: Request, res: Response) => {
 
     const sortBy = (req.query.sortBy ?? "price") as string | undefined;
     const sortOrder = (req.query.sortOrder ?? "asc") as string | undefined;
+    console.log({search, category, price});
     
     const result = await medicineService.getAllMedicine({search : searchString, price : priceString, category: categoryString, page, limit, sortBy, sortOrder});
+
+    // console.log(result);
 
     res.status(200).json(result)
   } catch (error) {

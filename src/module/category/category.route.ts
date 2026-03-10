@@ -5,7 +5,7 @@ import { UserRole } from "../../constants/enum";
 
 const router = express.Router();
 
-router.get('/',auth(UserRole.SELLER,UserRole.ADMIN),categoryController.getAllCategory);
+router.get('/',auth(UserRole.CUSTOMER,UserRole.SELLER,UserRole.ADMIN),categoryController.getAllCategory);
 router.get('/:categoryName',auth(UserRole.SELLER,UserRole.ADMIN),categoryController.getCategory);
 router.post('/',auth(UserRole.SELLER,UserRole.ADMIN),categoryController.createCategory);
 

@@ -47,6 +47,12 @@ const getAllMedicine = async({search, price, category, page, limit, sortBy, sort
     })
   }
 
+    if(category){
+    andConditions.push({
+      categoryName : category
+    })
+  }
+
   const result = await prisma.medicine.findMany({
     take : limit,
     skip,
