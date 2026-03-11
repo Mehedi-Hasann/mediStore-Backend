@@ -26,11 +26,7 @@ const session = await betterAuth.api.getSession({
     cookie: req.headers.cookie || ""
   }
 });
-    // console.log(session?.session);
-    // console.log("Cookies => ", req.headers.cookie);
-    // console.log(req.body);
-    // console.log("Expected role => ",roles);
-    // console.log(session);
+ 
 
     if(!session){
       return res.status(401).json({
@@ -52,7 +48,6 @@ const session = await betterAuth.api.getSession({
       role : session.user.role as string,
       emailVerified : session.user.emailVerified
     }
-    console.log("Requested role => ",req.user.role);
 
     if(roles.length && !roles.includes(req.user.role as UserRole)){
       return res.status(403).json({

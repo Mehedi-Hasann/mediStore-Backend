@@ -96,7 +96,6 @@ var getMedicineById = async (id) => {
       reviews: true
     }
   });
-  console.log(result);
   return result;
 };
 var getAllMedicine = async ({ search, price, category, page, limit, sortBy, sortOrder }) => {
@@ -114,6 +113,11 @@ var getAllMedicine = async ({ search, price, category, page, limit, sortBy, sort
   if (priceNum) {
     andConditions.push({
       price: priceNum
+    });
+  }
+  if (category) {
+    andConditions.push({
+      categoryName: category
     });
   }
   const result = await prisma.medicine.findMany({
@@ -395,9 +399,10 @@ var auth = betterAuth({
 // src/middlewares/auth.ts
 var auth2 = (...roles) => {
   return async (req, res, next) => {
-    console.log("Expected role => ", roles);
     const session = await auth.api.getSession({
-      headers: req.headers
+      headers: {
+        cookie: req.headers.cookie || ""
+      }
     });
     if (!session) {
       return res.status(401).json({
@@ -418,7 +423,6 @@ var auth2 = (...roles) => {
       role: session.user.role,
       emailVerified: session.user.emailVerified
     };
-    console.log("Requested role => ", req.user.role);
     if (roles.length && !roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
@@ -431,9 +435,9 @@ var auth2 = (...roles) => {
 
 // src/module/category/category.route.ts
 var router2 = express2.Router();
-router2.get("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getAllCategory);
-router2.get("/:categoryName", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.getCategory);
-router2.post("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), categoryController.createCategory);
+router2.get("/", categoryController.getAllCategory);
+router2.get("/:categoryName", categoryController.getCategory);
+router2.post("/", auth2("ADMIN" /* ADMIN */), categoryController.createCategory);
 var categoryRoute = router2;
 
 // src/app.ts
@@ -445,7 +449,6 @@ import express3 from "express";
 
 // src/module/seller/seller.service.ts
 var createMedicine = async (payload) => {
-  console.log(payload);
   const category = await prisma.category.findUniqueOrThrow({
     where: {
       categoryName: payload.categoryName
@@ -491,7 +494,6 @@ var deleteMedicine = async (id) => {
     });
     return result;
   } catch (error) {
-    console.log(error);
     throw new Error("Medicine is not Exists!");
   }
 };
@@ -597,12 +599,27 @@ import express4 from "express";
 
 // src/module/orders/orders.service.ts
 var createOrder = async (payload, userId) => {
-  const medicine = await prisma.medicine.findUnique({
+  const medicineExists = await prisma.medicine.findUnique({
     where: {
       id: payload.medicineId
     }
   });
-  console.log("medicine => ", medicine);
+  if (!medicineExists) {
+    throw new Error("Medicine is not Found! Try again later");
+  }
+  if (medicineExists?.stock < payload.quantity) {
+    throw new Error("Insufficient medicine stock!");
+  }
+  const medicine = await prisma.medicine.update({
+    where: {
+      id: payload.medicineId
+    },
+    data: {
+      stock: {
+        decrement: payload.quantity
+      }
+    }
+  });
   const result = await prisma.order.create({
     data: {
       userId,
@@ -616,6 +633,7 @@ var createOrder = async (payload, userId) => {
   return result;
 };
 var getAllOrder3 = async (id, page, limit) => {
+  console.log(id);
   const data = await prisma.order.findMany({
     take: limit,
     skip: (page - 1) * limit,
@@ -623,7 +641,12 @@ var getAllOrder3 = async (id, page, limit) => {
       userId: id
     }
   });
-  const total = await prisma.order.count();
+  const total = await prisma.order.count({
+    where: {
+      userId: id
+    }
+  });
+  console.log(data);
   return { data, total, page, limit, totalPage: Math.ceil(total / limit) };
 };
 var getSingleOrder = async (id) => {
@@ -686,8 +709,8 @@ var orderController = {
 
 // src/module/orders/orders.route.ts
 var route = express4.Router();
-route.post("/", auth2("ADMIN" /* ADMIN */, "CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */), orderController.createOrder);
-route.get("/", auth2("SELLER" /* SELLER */, "ADMIN" /* ADMIN */), orderController.getAllOrder);
+route.post("/", auth2("CUSTOMER" /* CUSTOMER */), orderController.createOrder);
+route.get("/", auth2("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */), orderController.getAllOrder);
 route.get("/:id", orderController.getSingleOrder);
 var orderRoute = route;
 
@@ -704,7 +727,6 @@ var getAllUser = async (page, limit) => {
   return { data, page, limit, totalUser, totalPage: Math.ceil(totalUser / limit) };
 };
 var updateUserStatus = async (payload, id) => {
-  console.log("hi");
   await prisma.user.findUniqueOrThrow({
     where: {
       id
@@ -816,7 +838,6 @@ var getMyOrder = async (id) => {
       userId: id
     }
   });
-  console.log(res);
   return res;
 };
 var editMyProfile = async (payload, userId) => {
@@ -829,7 +850,6 @@ var editMyProfile = async (payload, userId) => {
       email: payload.email
     }
   });
-  console.log(res);
   return res;
 };
 var getSingleOrder3 = async (id) => {
@@ -849,7 +869,6 @@ var addShippingAddress = async (payload, userId) => {
       city: payload.city
     }
   });
-  console.log(user);
   return user;
 };
 var AddItemToCard = async (payload, userId) => {
@@ -870,7 +889,6 @@ var AddItemToCard = async (payload, userId) => {
       medicineId: payload.medicineId
     }
   });
-  console.log(res);
   return res;
 };
 var getMyCartItem = async (userId) => {
@@ -887,11 +905,9 @@ var getMySingleCartItem = async (id) => {
       id
     }
   });
-  console.log(cartItem);
   return cartItem;
 };
 var DecrementCartItem = async (payload, userId) => {
-  console.log(payload);
   const checkItem = await prisma.cart.findUnique({
     where: {
       userId_medicineId: {
@@ -900,7 +916,6 @@ var DecrementCartItem = async (payload, userId) => {
       }
     }
   });
-  console.log(checkItem);
   if (checkItem?.quantity === 0 || checkItem?.quantity === null) {
     throw new Error("Quantity Cannot be Negative");
   }
@@ -929,11 +944,9 @@ var deleteCartItem = async (id) => {
       id
     }
   });
-  console.log(res);
   return res;
 };
 var createAddress = async (payload, userId) => {
-  console.log(payload);
   const res = await prisma.address.upsert({
     where: {
       userId
@@ -947,17 +960,14 @@ var createAddress = async (payload, userId) => {
       userId
     }
   });
-  console.log(res);
   return res;
 };
 var getMyAddress = async (userId) => {
-  console.log(userId);
   const res = await prisma.address.findUniqueOrThrow({
     where: {
       userId
     }
   });
-  console.log(res);
   return res;
 };
 var createReview = async (payload, userId) => {
@@ -975,7 +985,6 @@ var getReview = async (userId) => {
       userId
     }
   });
-  console.log(res);
   return res;
 };
 var getSingleMedicineReview = async (medicineId) => {
@@ -1126,7 +1135,6 @@ var DecrementCartItem2 = async (req, res) => {
     }
     const userId = req.user?.id;
     const result = await customerService.DecrementCartItem(req.body, userId);
-    console.log(result);
     res.status(201).json(result);
   } catch (error) {
     res.status(500).json({
@@ -1145,7 +1153,6 @@ var getMyCartItem2 = async (req, res) => {
     }
     const userId = req.user.id;
     const result = await customerService.getMyCartItem(userId);
-    console.log(result);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({
@@ -1234,7 +1241,7 @@ var createReview2 = async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
-        message: "You are not Authorized"
+        message: "You are not Unauthorized"
       });
     }
     const userId = req.user.id;

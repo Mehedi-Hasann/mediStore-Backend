@@ -148,7 +148,6 @@ const DecrementCartItem = async (req: Request, res : Response) => {
 
     const userId = req.user?.id;
     const result = await customerService.DecrementCartItem(req.body, userId as string);
-    console.log(result);
 
     res.status(201).json(result);
 
@@ -171,7 +170,7 @@ const getMyCartItem = async(req: Request, res : Response) => {
     }
     const userId = req.user.id;
     const result = await customerService.getMyCartItem(userId);
-    console.log(result);
+    // console.log(result);
 
     res.status(200).json(result);
   } catch (error : any) {

@@ -28,6 +28,7 @@ const getSingleCategory = async(categoryName : string) => {
   return result;
 
 }
+
 const getAllCategory = async() => {
   const result = await prisma.category.findMany();
   return result;
