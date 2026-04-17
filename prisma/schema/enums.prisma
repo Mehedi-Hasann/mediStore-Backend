@@ -1,0 +1,30 @@
+enum Rating {
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
+}
+enum UserStatus {
+  ACTIVE
+  DELETED
+  BLOCKED
+}
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+enum Role {
+  CUSTOMER
+  SELLER
+  ADMIN
+}
+
+enum PaymentStatus {
+  PAID 
+  UNPAID
+  CANCELLED
+}

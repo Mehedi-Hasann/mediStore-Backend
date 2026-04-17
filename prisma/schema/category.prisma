@@ -1,0 +1,8 @@
+model Category {
+  id           String     @id @default(uuid())
+  medicines    Medicine[]
+  categoryName String     @unique
+  description  String?
+
+  @@map("categories")
+}

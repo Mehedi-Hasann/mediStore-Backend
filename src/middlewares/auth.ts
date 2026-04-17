@@ -1,0 +1,60 @@
+import { NextFunction, Request, Response } from "express"
+import {auth as betterAuth} from "../lib/auth";
+import { Role } from "../generated/enums";
+
+declare global {
+  namespace Express {
+    interface Request {
+      user ?: {
+        id : string;
+        name : string;
+        email : string;
+        role : string;
+        emailVerified : boolean;
+      }
+    }
+  }
+}
+
+
+export const auth = (...roles : any) => {
+  return async(req: Request, res: Response, next: NextFunction) => {
+
+const session = await betterAuth.api.getSession({
+  headers: {
+    cookie: req.headers.cookie || ""
+  }
+});
+ 
+
+    if(!session){
+      return res.status(401).json({
+        success : false,
+        message : `You are not Authorized!!`
+      })
+    }
+
+    if(!session.user.emailVerified){
+      return res.status(403).json({
+        success : false,
+        message : "Your Email is not Verified. Please Verify your email."
+      })
+    }
+    req.user = {
+      id : session.user.id,
+      name : session.user.name,
+      email : session.user.email,
+      role : session.user.role as string,
+      emailVerified : session.user.emailVerified
+    }
+
+    if(roles.length && !roles.includes(req.user.role as Role)){
+      return res.status(403).json({
+        success : false,
+        message : "Forbidden. You don't have permission to this resources."
+      })
+    }
+
+    next()
+  }
+}

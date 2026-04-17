@@ -1,0 +1,17 @@
+model Medicine {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  price        Int
+  stock        Int
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categoryName String
+  orders       Order[]
+  reviews      Review[]
+  cart         Cart[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("medicines")
+}
