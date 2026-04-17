@@ -1,4 +1,4 @@
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Application, Request, Response } from "express";
 import { medicineRouter } from "./module/medicine/medicine.route";
 import { categoryRoute } from "./module/category/category.route";
 import cors from "cors"
@@ -9,15 +9,11 @@ import { customerRouter } from "./module/customer/customer.route";
 import cookieParser from "cookie-parser";
 import paymentRoute from "./module/payment/payment.route";
 import { PaymentController } from "./module/payment/payment.controller";
-import { AuthRoutes } from "./module/auth/auth.route";
 import { envVars } from "./config/env";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { notFoundHandler } from "./middlewares/notFound";
-import { UserRoutes } from "./module/user/user.route";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
-import { prisma } from "./lib/prisma";
-import { Role } from "./generated/enums";
 
 const app : Application= express();
 
@@ -36,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.handleStripeWebhookEvent)
-// app.use('/auth', AuthRoutes);
+
 app.use(express.json());
 app.use("/api/payment", paymentRoute);
 
@@ -55,8 +51,6 @@ app.use("/api/orders",orderRoute);
 
 //! admin
 app.use("/api/admin",adminRoute);
-
-// app.use("/api/user", UserRoutes);
 
 app.get("/", (req: Request,res: Response) => {
   res.send("Hello World !!");
