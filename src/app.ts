@@ -33,25 +33,6 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-app.post('/api/auth/sign-in/email', async(req: Request, res: Response, next: NextFunction) => {
-  try {
-    const users = await prisma.user.updateMany({
-      where : {
-        role : Role.CUSTOMER,
-        emailVerified : false,
-        isDeleted : false
-      },
-      data : {
-        emailVerified : true
-      }
-    })
-    console.log(users)
-  } catch (error) {
-    console.log("Failed to update customer from isverified to verified",error)
-  }
-  next()
-})
-
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.handleStripeWebhookEvent)
