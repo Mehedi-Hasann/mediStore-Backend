@@ -81,8 +81,8 @@ const createOrder = async(payload : Order, userId : string) => {
           paymentId : paymentData.id
         },
 
-        success_url : `${envVars.FRONTEND_URL}/orders`,
-        cancel_url : `${envVars.FRONTEND_URL}/orders`
+        success_url : `${envVars.FRONTEND_URL}/orders?success=true`,
+        cancel_url : `${envVars.FRONTEND_URL}/orders?success=false`
       })
 
       return {

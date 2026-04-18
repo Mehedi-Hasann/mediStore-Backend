@@ -113,6 +113,7 @@ var loadEnvVariables = () => {
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
     "ADMIN_EMAIL",
+    "FRONTEND_URL",
     "ADMIN_PASSWORD",
     "ACCESS_TOKEN_SECRET",
     "REFRESH_TOKEN_SECRET",
@@ -146,6 +147,7 @@ var loadEnvVariables = () => {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+    FRONTEND_URL: process.env.FRONTEND_URL,
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
@@ -243,17 +245,43 @@ var medicineService = {
   getAllMedicine
 };
 
-// src/module/medicine/medicine.controller.ts
-var getMedicineById2 = async (req, res) => {
-  try {
-    const result = await medicineService.getMedicineById(req.params.id);
-    res.status(400).json(result);
-  } catch (error) {
-    res.status(404).json(error);
-  }
+// src/shared/catchAsync.ts
+var catchAsync = (fn) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
 };
-var getAllMedicine2 = async (req, res) => {
-  try {
+
+// src/shared/sendResponse.ts
+var sendResponse = (res, responseData) => {
+  const { httpStatusCode, success, message, data, meta } = responseData;
+  res.status(httpStatusCode).json({
+    success,
+    message,
+    data,
+    meta
+  });
+};
+
+// src/module/medicine/medicine.controller.ts
+import status from "http-status";
+var getMedicineById2 = catchAsync(
+  async (req, res) => {
+    const result = await medicineService.getMedicineById(req.params.id);
+    sendResponse(res, {
+      httpStatusCode: status.OK,
+      success: true,
+      message: "Medicine fetched successfully",
+      data: result
+    });
+  }
+);
+var getAllMedicine2 = catchAsync(
+  async (req, res) => {
     const { search } = req.query;
     const searchString = typeof search === "string" ? search : void 0;
     const { price } = req.query;
@@ -265,11 +293,14 @@ var getAllMedicine2 = async (req, res) => {
     const sortBy = req.query.sortBy ?? "price";
     const sortOrder = req.query.sortOrder ?? "asc";
     const result = await medicineService.getAllMedicine({ search: searchString, price: priceString, category: categoryString, page, limit, sortBy, sortOrder });
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(404).json(error);
+    sendResponse(res, {
+      httpStatusCode: status.OK,
+      success: true,
+      message: "Medicine fetched successfully",
+      data: result
+    });
   }
-};
+);
 var medicineController = {
   getMedicineById: getMedicineById2,
   getAllMedicine: getAllMedicine2
@@ -318,32 +349,41 @@ var categoryService = {
 };
 
 // src/module/category/category.controller.ts
-var createCategory2 = async (req, res) => {
-  try {
+import status2 from "http-status";
+var createCategory2 = catchAsync(
+  async (req, res) => {
     const result = await categoryService.createCategory(req.body);
-    res.status(201).json(result);
-  } catch (error) {
-    res.send(error);
+    sendResponse(res, {
+      httpStatusCode: status2.OK,
+      success: true,
+      message: "Category created successfully",
+      data: result
+    });
   }
-};
-var getCategory = async (req, res) => {
-  try {
+);
+var getCategory = catchAsync(
+  async (req, res) => {
     const { categoryName } = req.params;
     const result = await categoryService.getSingleCategory(categoryName);
-    res.status(500).json(result);
-  } catch (error) {
-    console.log("Category is not found");
-    res.status(404).json(error);
+    sendResponse(res, {
+      httpStatusCode: status2.OK,
+      success: true,
+      message: "Category fetched successfully",
+      data: result
+    });
   }
-};
-var getAllCategory2 = async (req, res) => {
-  try {
+);
+var getAllCategory2 = catchAsync(
+  async (req, res) => {
     const result = await categoryService.getAllCategory();
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json(error);
+    sendResponse(res, {
+      httpStatusCode: status2.OK,
+      success: true,
+      message: "Categories fetched successfully",
+      data: result
+    });
   }
-};
+);
 var categoryController = {
   createCategory: createCategory2,
   getCategory,
@@ -375,7 +415,7 @@ var AppError = class extends Error {
 var AppError_default = AppError;
 
 // src/utils/email.ts
-import status from "http-status";
+import status3 from "http-status";
 import path2 from "path";
 import ejs from "ejs";
 var transporter = nodemailer.createTransport({
@@ -404,7 +444,7 @@ var sendEmail = async ({ subject, templateData, templateName, to, attachments })
     });
   } catch (error) {
     console.log("Email Sending Error", error.message);
-    throw new AppError_default(status.INTERNAL_SERVER_ERROR, "Failed to send Email");
+    throw new AppError_default(status3.INTERNAL_SERVER_ERROR, "Failed to send Email");
   }
 };
 
@@ -734,42 +774,20 @@ var sellerServices = {
   updateStatus
 };
 
-// src/shared/catchAsync.ts
-var catchAsync = (fn) => {
-  return async (req, res, next) => {
-    try {
-      await fn(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-};
-
-// src/shared/sendResponse.ts
-var sendResponse = (res, responseData) => {
-  const { httpStatusCode, success, message, data, meta } = responseData;
-  res.status(httpStatusCode).json({
-    success,
-    message,
-    data,
-    meta
-  });
-};
-
 // src/module/seller/seller.controller.ts
-import status2 from "http-status";
+import status4 from "http-status";
 var createMedicine2 = catchAsync(async (req, res) => {
   try {
     const result = await sellerServices.createMedicine(req.body);
     sendResponse(res, {
-      httpStatusCode: status2.OK,
+      httpStatusCode: status4.OK,
       success: true,
       message: "Medicine created successfully",
       data: result
     });
   } catch (error) {
     sendResponse(res, {
-      httpStatusCode: status2.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Error creating medicine"
     });
@@ -780,14 +798,14 @@ var updateMedicine2 = catchAsync(async (req, res) => {
     const { id } = req.params;
     const result = await sellerServices.updateMedicine(req.body, id);
     sendResponse(res, {
-      httpStatusCode: status2.OK,
+      httpStatusCode: status4.OK,
       success: true,
       message: "Medicine updated successfully",
       data: result
     });
   } catch (error) {
     sendResponse(res, {
-      httpStatusCode: status2.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Error updating medicine"
     });
@@ -798,14 +816,14 @@ var deleteMedicine2 = catchAsync(async (req, res) => {
     const { id } = req.params;
     const result = await sellerServices.deleteMedicine(id);
     sendResponse(res, {
-      httpStatusCode: status2.OK,
+      httpStatusCode: status4.OK,
       success: true,
       message: "Medicine deleted successfully",
       data: result
     });
   } catch (error) {
     sendResponse(res, {
-      httpStatusCode: status2.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Error deleting medicine"
     });
@@ -815,14 +833,14 @@ var getAllOrder2 = catchAsync(async (req, res) => {
   try {
     const result = await sellerServices.getAllOrder();
     sendResponse(res, {
-      httpStatusCode: status2.OK,
+      httpStatusCode: status4.OK,
       success: true,
       message: "All orders fetched successfully",
       data: result
     });
   } catch (error) {
     sendResponse(res, {
-      httpStatusCode: status2.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Error fetching all orders"
     });
@@ -833,14 +851,14 @@ var updateStatus2 = catchAsync(async (req, res) => {
     const id = req.params.id;
     const result = await sellerServices.updateStatus(req.body, id);
     sendResponse(res, {
-      httpStatusCode: status2.OK,
+      httpStatusCode: status4.OK,
       success: true,
       message: "Order status updated successfully",
       data: result
     });
   } catch (error) {
     sendResponse(res, {
-      httpStatusCode: status2.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Error updating order status"
     });
@@ -934,8 +952,8 @@ var createOrder = async (payload, userId) => {
         orderId: orderData.id,
         paymentId: paymentData.id
       },
-      success_url: `${envVars.APP_URL}/dashboard/payment/payment-success?order_id=${orderData.id}&payment_id=${paymentData.id}`,
-      cancel_url: `${envVars.APP_URL}/dashboard/dashboard?error=payment_canceled`
+      success_url: `${envVars.FRONTEND_URL}/orders?success=true`,
+      cancel_url: `${envVars.FRONTEND_URL}/orders?success=false`
     });
     return {
       orderData,
@@ -950,7 +968,6 @@ var createOrder = async (payload, userId) => {
   };
 };
 var getAllOrder3 = async (id, page, limit) => {
-  console.log("hi I am from getAllOrder");
   const data = await prisma.order.findMany({
     take: limit,
     skip: (page - 1) * limit,
@@ -958,13 +975,11 @@ var getAllOrder3 = async (id, page, limit) => {
       userId: id
     }
   });
-  console.log(data);
   const total = await prisma.order.count({
     where: {
       userId: id
     }
   });
-  console.log(data);
   return { data, total, page, limit, totalPage: Math.ceil(total / limit) };
 };
 var getSingleOrder = async (id) => {
@@ -992,12 +1007,12 @@ var orderService = {
 };
 
 // src/module/orders/orders.controller.ts
-import status3 from "http-status";
+import status5 from "http-status";
 var createOrder2 = catchAsync(
   async (req, res) => {
     const result = await orderService.createOrder(req.body, req.user?.id);
     sendResponse(res, {
-      httpStatusCode: status3.OK,
+      httpStatusCode: status5.CREATED,
       success: true,
       message: "Order created successfully",
       data: result
@@ -1011,9 +1026,9 @@ var getAllOrder4 = catchAsync(
     const limit = Number(req.query.limit) || 5;
     const result = await orderService.getAllOrder(id, page, limit);
     sendResponse(res, {
-      httpStatusCode: status3.OK,
+      httpStatusCode: status5.OK,
       success: true,
-      message: "Order fetched successfully",
+      message: "Orders fetched successfully",
       data: result
     });
   }
@@ -1023,7 +1038,7 @@ var getSingleOrder2 = catchAsync(
     const id = req.params.id;
     const result = await orderService.getSingleOrder(id);
     sendResponse(res, {
-      httpStatusCode: status3.OK,
+      httpStatusCode: status5.OK,
       success: true,
       message: "Order fetched successfully",
       data: result
@@ -1036,7 +1051,7 @@ var deleteOrder2 = catchAsync(
     const userId = req.user?.id;
     const result = await orderService.deleteOrder(id, userId);
     sendResponse(res, {
-      httpStatusCode: status3.OK,
+      httpStatusCode: status5.OK,
       success: true,
       message: "Order deleted successfully",
       data: result
@@ -1079,6 +1094,7 @@ var getAllUser = async (page, limit) => {
   return { data, page, limit, totalUser, totalPage: Math.ceil(totalUser / limit) };
 };
 var updateUserStatus = async (payload, id) => {
+  console.log(payload);
   await prisma.user.findUniqueOrThrow({
     where: {
       id
@@ -1301,7 +1317,7 @@ var DecrementCartItem = async (payload, userId) => {
       }
     }
   });
-  if (checkItem?.quantity === 0 || checkItem?.quantity === null) {
+  if (checkItem?.quantity === 1 || checkItem?.quantity === null) {
     throw new Error("Quantity Cannot be Negative");
   }
   const res = await prisma.cart.upsert({
@@ -1321,6 +1337,7 @@ var DecrementCartItem = async (payload, userId) => {
       medicineId: payload.medicineId
     }
   });
+  console.log(res);
   return res;
 };
 var deleteCartItem = async (id) => {
@@ -1341,7 +1358,6 @@ var createAddress = async (payload, userId) => {
   return res;
 };
 var updateAddress = async (payload, userId) => {
-  console.log(payload);
   const updateAddress3 = await prisma.address.upsert({
     where: {
       userId
@@ -1418,8 +1434,9 @@ var customerService = {
 };
 
 // src/module/customer/customer.controller.ts
-var getMyProfile2 = async (req, res) => {
-  try {
+import status6 from "http-status";
+var getMyProfile2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
@@ -1428,16 +1445,16 @@ var getMyProfile2 = async (req, res) => {
     }
     const { id } = req.user;
     const result = await customerService.getMyProfile(id);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Profile fetched successfully",
+      data: result
     });
   }
-};
-var getMyOrder2 = async (req, res) => {
-  try {
+);
+var getMyOrder2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
@@ -1446,109 +1463,107 @@ var getMyOrder2 = async (req, res) => {
     }
     const { id } = req.user;
     const result = await customerService.getMyOrder(id);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Orders fetched successfully",
+      data: result
     });
   }
-};
-var editMyProfile2 = async (req, res) => {
-  try {
+);
+var editMyProfile2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
-    const result = await customerService.editMyProfile(req.body, userId);
-    console.log(result);
-    res.status(200).json({ result });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.editMyProfile(req.body, id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Profile updated successfully",
+      data: result
     });
   }
-};
-var getSingleOrder4 = async (req, res) => {
-  try {
+);
+var getSingleOrder4 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const id = req.params.id;
+    const { id } = req.params;
     const result = await customerService.getSingleOrder(id);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Order fetched successfully",
+      data: result
     });
   }
-};
-var addShippingAddress2 = async (req, res) => {
-  try {
+);
+var addShippingAddress2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
-    const result = await customerService.addShippingAddress(req.body, userId);
-    res.status(200).json({ result });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.addShippingAddress(req.body, id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Shipping address added successfully",
+      data: result
     });
   }
-};
-var AddItemToCard2 = async (req, res) => {
-  try {
-    const user = req.user;
-    if (!user) {
-      res.status(404).json({
-        message: false,
-        error: "Please Login to Add Item in your Cart"
+);
+var AddItemToCard2 = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
       });
     }
-    const userId = req.user?.id;
-    const result = await customerService.AddItemToCard(req.body, userId);
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.AddItemToCard(req.body, id);
+    console.log(result);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Item added to cart successfully",
+      data: result
     });
   }
-};
-var DecrementCartItem2 = async (req, res) => {
-  try {
-    const user = req.user;
-    if (!user) {
-      res.status(404).json({
-        message: false,
-        error: "Please Login to Add Item in your Cart"
+);
+var DecrementCartItem2 = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
       });
     }
-    const userId = req.user?.id;
-    const result = await customerService.DecrementCartItem(req.body, userId);
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.DecrementCartItem(req.body, id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Cart item decremented successfully",
+      data: result
     });
   }
-};
-var getMyCartItem2 = async (req, res) => {
-  try {
+);
+var getMyCartItem2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
@@ -1557,72 +1572,88 @@ var getMyCartItem2 = async (req, res) => {
     }
     const userId = req.user.id;
     const result = await customerService.getMyCartItem(userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Cart items fetched successfully",
+      data: result
     });
   }
-};
-var getMySingleCartItem2 = async (req, res) => {
-  try {
+);
+var getMySingleCartItem2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
     const { id } = req.params;
     const result = await customerService.getMySingleCartItem(id);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Cart item fetched successfully",
+      data: result
     });
   }
-};
-var deleteCartItem2 = async (req, res) => {
-  try {
-    const user = req.user;
-    if (!user) {
-      res.status(404).json({
-        message: false,
-        error: "Please Login to Add Item in your Cart"
-      });
-    }
-    const id = await req.params.id;
-    const result = await customerService.deleteCartItem(id);
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
-var createAddress2 = async (req, res) => {
-  try {
+);
+var deleteCartItem2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
-    const result = await customerService.createAddress(req.body, userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.params;
+    const result = await customerService.deleteCartItem(id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Cart item deleted successfully",
+      data: result
     });
   }
-};
-var getMyAddress2 = async (req, res) => {
-  try {
+);
+var createAddress2 = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const { id } = req.user;
+    const result = await customerService.createAddress(req.body, id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Address added successfully",
+      data: result
+    });
+  }
+);
+var getMyAddress2 = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: "You are not Authorized"
+      });
+    }
+    const { id } = req.user;
+    const result = await customerService.getMyAddress(id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Address fetched successfully",
+      data: result
+    });
+  }
+);
+var updateAddress2 = catchAsync(
+  async (req, res) => {
     console.log("hi");
     if (!req.user) {
       return res.status(404).json({
@@ -1630,89 +1661,70 @@ var getMyAddress2 = async (req, res) => {
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
-    const result = await customerService.getMyAddress(userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.updateAddress(req.body, id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Profile updated successfully",
+      data: result
     });
   }
-};
-var updateAddress2 = async (req, res) => {
-  try {
+);
+var createReview2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
-    const result = await customerService.updateAddress(req.body, userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.createReview(req.body, id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Review added successfully",
+      data: result
     });
   }
-};
-var createReview2 = async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(404).json({
-        success: false,
-        message: "You are not Unauthorized"
-      });
-    }
-    const userId = req.user.id;
-    const result = await customerService.createReview(req.body, userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
-var getReview2 = async (req, res) => {
-  try {
+);
+var getReview2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const userId = req.user.id;
-    const result = await customerService.getReview(userId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.getReview(id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Review fetched successfully",
+      data: result
     });
   }
-};
-var getSingleMedicineReview2 = async (req, res) => {
-  try {
+);
+var getSingleMedicineReview2 = catchAsync(
+  async (req, res) => {
     if (!req.user) {
       return res.status(404).json({
         success: false,
         message: "You are not Authorized"
       });
     }
-    const { medicineId } = req.params;
-    console.log(medicineId);
-    const result = await customerService.getSingleMedicineReview(medicineId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
+    const { id } = req.user;
+    const result = await customerService.getSingleMedicineReview(id);
+    sendResponse(res, {
+      httpStatusCode: status6.OK,
+      success: true,
+      message: "Review fetched successfully",
+      data: result
     });
   }
-};
+);
 var customerController = {
   getMyProfile: getMyProfile2,
   getMyOrder: getMyOrder2,
@@ -1847,7 +1859,7 @@ var PaymentService = {
 };
 
 // src/module/payment/payment.controller.ts
-import status4 from "http-status";
+import status7 from "http-status";
 var handleStripeWebhookEvent = catchAsync(
   async (req, res) => {
     const signature = req.headers["stripe-signature"];
@@ -1855,7 +1867,7 @@ var handleStripeWebhookEvent = catchAsync(
     if (!signature || !webhookSecret) {
       console.error("Missing Stripe signature or webhook secret");
       sendResponse(res, {
-        httpStatusCode: status4.BAD_REQUEST,
+        httpStatusCode: status7.BAD_REQUEST,
         success: false,
         message: "Missing Stripe signature or webhook secret"
       });
@@ -1866,7 +1878,7 @@ var handleStripeWebhookEvent = catchAsync(
     } catch (error) {
       console.error("Error processing Stripe webhook:", error);
       sendResponse(res, {
-        httpStatusCode: status4.BAD_REQUEST,
+        httpStatusCode: status7.BAD_REQUEST,
         success: false,
         message: "Error processing Stripe webhook"
       });
@@ -1874,7 +1886,7 @@ var handleStripeWebhookEvent = catchAsync(
     try {
       const result = await PaymentService.handlerStripeWebhookEvent(req.user?.id, event);
       sendResponse(res, {
-        httpStatusCode: status4.OK,
+        httpStatusCode: status7.OK,
         success: true,
         message: "Stripe webhook event processed successfully",
         data: result
@@ -1882,7 +1894,7 @@ var handleStripeWebhookEvent = catchAsync(
     } catch (error) {
       console.error("Error handling Stripe webhook event:", error);
       sendResponse(res, {
-        httpStatusCode: status4.INTERNAL_SERVER_ERROR,
+        httpStatusCode: status7.INTERNAL_SERVER_ERROR,
         success: false,
         message: "Error handling Stripe webhook event"
       });
@@ -1894,14 +1906,14 @@ var PaymentController = {
 };
 
 // src/middlewares/globalErrorHandler.ts
-import status7 from "http-status";
+import status10 from "http-status";
 import z4 from "zod";
 
 // src/errorHelper/handleZodError.ts
-import status5 from "http-status";
+import status8 from "http-status";
 var handleZodError = (err) => {
-  const statusCode = status5.BAD_REQUEST;
-  const message = "Zod Validation Error from globalErrorHandler";
+  const statusCode = status8.BAD_REQUEST;
+  const message = err.message || "Zod Validation Error from globalErrorHandler";
   const errorSource = [];
   err.issues.forEach((issue) => {
     errorSource.push({
@@ -1919,7 +1931,7 @@ var handleZodError = (err) => {
 
 // src/config/cloudinary.ts
 import { v2 as cloudinary } from "cloudinary";
-import status6 from "http-status";
+import status9 from "http-status";
 cloudinary.config({
   cloud_name: envVars.CLOUDINARY.CLOUDINARY_CLOUD_NAME,
   api_key: envVars.CLOUDINARY.CLOUDINARY_API_KEY,
@@ -1940,7 +1952,7 @@ var deleteFileFromCloudinary = async (url) => {
     }
   } catch (error) {
     console.error("Error deleting file from Cloudinary", error);
-    throw new AppError_default(status6.INTERNAL_SERVER_ERROR, "Failed to delete file from Cloudinary");
+    throw new AppError_default(status9.INTERNAL_SERVER_ERROR, "Failed to delete file from Cloudinary");
   }
 };
 
@@ -1957,13 +1969,18 @@ var globalErrorHandler = async (err, req, res, next) => {
     await Promise.all(imageUrls.map((url) => deleteFileFromCloudinary(url)));
   }
   let errorSources = [];
-  let statusCode = status7.INTERNAL_SERVER_ERROR;
+  let statusCode = status10.INTERNAL_SERVER_ERROR;
   let message = "Internal Server Error";
   let stack = void 0;
   if (err instanceof z4.ZodError) {
     const simplifiedError = handleZodError(err);
-    statusCode = simplifiedError.statusCode || status7.BAD_REQUEST;
-    message = simplifiedError.message;
+    statusCode = simplifiedError.statusCode || status10.BAD_REQUEST;
+    if (err instanceof z4.ZodError) {
+      const errors = err.issues;
+      errors.forEach((e) => {
+        message = e.message;
+      });
+    }
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
   } else if (err instanceof AppError_default) {
@@ -1977,7 +1994,7 @@ var globalErrorHandler = async (err, req, res, next) => {
       }
     ];
   } else if (err instanceof Error) {
-    statusCode = status7.INTERNAL_SERVER_ERROR;
+    statusCode = status10.INTERNAL_SERVER_ERROR;
     message = err.message;
     stack = err.stack;
     errorSources = [
@@ -1998,9 +2015,9 @@ var globalErrorHandler = async (err, req, res, next) => {
 };
 
 // src/middlewares/notFound.ts
-import status8 from "http-status";
+import status11 from "http-status";
 var notFoundHandler = (req, res) => {
-  res.status(status8.NOT_FOUND).json({
+  res.status(status11.NOT_FOUND).json({
     success: false,
     message: `Route ${req.originalUrl} not found`
   });
