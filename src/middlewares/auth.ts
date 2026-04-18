@@ -47,6 +47,7 @@ const session = await betterAuth.api.getSession({
       role : session.user.role as string,
       emailVerified : session.user.emailVerified
     }
+    // console.log(req.user)
 
     if(roles.length && !roles.includes(req.user.role as Role)){
       return res.status(403).json({

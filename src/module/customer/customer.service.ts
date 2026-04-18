@@ -146,7 +146,7 @@ const getMySingleCartItem = async (id : string) => {
 }
 
 const DecrementCartItem = async(payload : {medicineId : string}, userId : string) => {
-  // console.log(payload);
+
   const checkItem = await prisma.cart.findUnique({
         where : {
           userId_medicineId : {
@@ -156,7 +156,7 @@ const DecrementCartItem = async(payload : {medicineId : string}, userId : string
         }
   })
   // console.log(checkItem);
-  if(checkItem?.quantity === 0 || checkItem?.quantity === null){
+  if(checkItem?.quantity === 1 || checkItem?.quantity === null){
     throw new Error ("Quantity Cannot be Negative")
   }
 
@@ -177,7 +177,7 @@ const DecrementCartItem = async(payload : {medicineId : string}, userId : string
       medicineId : payload.medicineId
     }
   })
-  // console.log(res);
+  console.log(res);
 
   return res;
 }
@@ -206,9 +206,8 @@ const createAddress = async (payload : Address, userId : string) => {
   return res;
 }
 
-
 const updateAddress = async(payload : IUpdateAddress, userId: string) => {
-  console.log(payload);
+  // console.log(payload);
 
   const updateAddress = await prisma.address.upsert({
     where : {

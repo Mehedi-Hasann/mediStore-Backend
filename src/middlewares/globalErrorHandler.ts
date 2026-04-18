@@ -29,7 +29,12 @@ export const globalErrorHandler = async(err : any, req: Request, res: Response, 
   if(err instanceof z.ZodError){
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode || status.BAD_REQUEST;
-    message  = simplifiedError.message;
+    if (err instanceof z.ZodError) {
+      const errors = err.issues;
+      errors.forEach(e => {
+        message = e.message
+      });
+    }
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
   }

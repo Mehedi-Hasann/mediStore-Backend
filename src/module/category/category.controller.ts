@@ -1,38 +1,45 @@
 import { Request, Response } from "express";
 import { categoryService } from "./category.service";
+import { catchAsync } from "../../shared/catchAsync";
+import { sendResponse } from "../../shared/sendResponse";
+import status from "http-status";
 
-const createCategory = async(req: Request, res: Response) => {
-  try {
+const createCategory = catchAsync(
+  async(req: Request, res: Response) => {
     const result = await categoryService.createCategory(req.body);
-
-    res.status(201).json(result);
-  } catch (error) {
-    res.send(error)
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Category created successfully",
+      data : result
+    })
   }
-}
+)
 
-const getCategory = async(req: Request, res: Response) => {
-  try {
+const getCategory = catchAsync(
+  async(req: Request, res: Response) => {
     const {categoryName} = req.params;
     const result = await categoryService.getSingleCategory(categoryName as string);
-
-    res.status(500).json(result);
-
-  } catch (error) {
-    console.log("Category is not found");
-    res.status(404).json(error)
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Category fetched successfully",
+      data : result
+    })
   }
+)
 
-}
-
-const getAllCategory = async(req: Request, res: Response) => {
-  try {
+const getAllCategory = catchAsync(
+  async(req: Request, res: Response) => {
     const result = await categoryService.getAllCategory();
-    res.status(200).json(result)
-  } catch (error) {
-    res.status(500).json(error)
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Categories fetched successfully",
+      data : result
+    })
   }
-}
+)
 
 export const categoryController = {
   createCategory, getCategory, getAllCategory

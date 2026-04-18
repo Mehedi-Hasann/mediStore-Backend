@@ -81,8 +81,8 @@ const createOrder = async(payload : Order, userId : string) => {
           paymentId : paymentData.id
         },
 
-        success_url : `${envVars.APP_URL}/dashboard/payment/payment-success?order_id=${orderData.id}&payment_id=${paymentData.id}`,
-        cancel_url : `${envVars.APP_URL}/dashboard/dashboard?error=payment_canceled`
+        success_url : `${envVars.FRONTEND_URL}/orders`,
+        cancel_url : `${envVars.FRONTEND_URL}/orders`
       })
 
       return {
@@ -100,9 +100,6 @@ const createOrder = async(payload : Order, userId : string) => {
 }
 
 const getAllOrder = async(id : string, page : number, limit : number) => {
-  // console.log({id, page, limit});
-  // console.log(id);
-  console.log("hi I am from getAllOrder")
   const data = await prisma.order.findMany({
     take : limit,
     skip : (page-1)*limit,
@@ -111,13 +108,11 @@ const getAllOrder = async(id : string, page : number, limit : number) => {
     }
   });
 
-  console.log(data)
   const total = await prisma.order.count({
     where : {
       userId : id
     }
   });
-  console.log(data);
 
   return {data, total, page , limit , totalPage : Math.ceil(total/limit)};
 }

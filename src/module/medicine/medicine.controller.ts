@@ -1,20 +1,24 @@
 import { Request, Response } from "express";
 import { medicineService } from "./medicine.service";
-import { number } from "better-auth";
+import { catchAsync } from "../../shared/catchAsync";
+import { sendResponse } from "../../shared/sendResponse";
+import status from "http-status";
 
-const getMedicineById = async(req: Request, res: Response) => {
-  try {
+const getMedicineById = catchAsync(
+  async (req: Request, res : Response) => {
     const result = await medicineService.getMedicineById(req.params.id as string);
-
-    res.status(400).json(result)
-  } catch (error) {
-    res.status(404).json(error)
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Medicine fetched successfully",
+      data : result
+    })
   }
-}
+)
 
-const getAllMedicine = async(req: Request, res: Response) => {
-  try {
-    const {search} = req.query;
+const getAllMedicine = catchAsync(
+  async (req: Request, res : Response) => {
+     const {search} = req.query;
     const searchString = typeof search==="string" ? search : undefined;
 
     const {price} = req.query;
@@ -31,14 +35,15 @@ const getAllMedicine = async(req: Request, res: Response) => {
     // console.log({search, category, price});
     
     const result = await medicineService.getAllMedicine({search : searchString, price : priceString, category: categoryString, page, limit, sortBy, sortOrder});
-
-    // console.log(result);
-
-    res.status(200).json(result)
-  } catch (error) {
-    res.status(404).json(error)
+    
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Medicine fetched successfully",
+      data : result
+    })   
   }
-}
+)
 
 
 export const medicineController = {

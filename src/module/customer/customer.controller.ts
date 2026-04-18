@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
 import { customerService } from "./customer.service";
+import { catchAsync } from "../../shared/catchAsync";
+import { sendResponse } from "../../shared/sendResponse";
+import status from "http-status";
 
-const getMyProfile = async(req: Request, res : Response) => {
-  try {
+const getMyProfile = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
@@ -11,19 +14,17 @@ const getMyProfile = async(req: Request, res : Response) => {
     }
     const {id} = req.user;
     const result = await customerService.getMyProfile(id);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Profile fetched successfully",
+      data : result
     })
   }
-}
+)
 
-const getMyOrder = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.user);
+const getMyOrder = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
@@ -32,136 +33,113 @@ const getMyOrder = async(req: Request, res : Response) => {
     }
     const {id} = req.user;
     const result = await customerService.getMyOrder(id);
-    // console.log(result);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Orders fetched successfully",
+      data : result
     })
   }
-}
+)
 
-
-const editMyProfile = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.user);
+const editMyProfile = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-    const userId = req.user.id;
-    const result = await customerService.editMyProfile(req.body ,userId as string);
-    console.log(result);
-
-    res.status(200).json({result});
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.editMyProfile(req.body ,id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Profile updated successfully",
+      data : result
     })
   }
-}
+)
 
-const getSingleOrder = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.user);
+const getSingleOrder = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-    const id = req.params.id;
+    const {id} = req.params;
     const result = await customerService.getSingleOrder(id as string);
-    // console.log(result);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Order fetched successfully",
+      data : result
     })
   }
-}
+)
 
-const addShippingAddress = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.user);
+const addShippingAddress = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-    // console.log(req.body);
-    const userId = req.user.id;
-    const result = await customerService.addShippingAddress(req.body ,userId as string);
-    // console.log(result);
-
-    res.status(200).json({result});
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.addShippingAddress(req.body ,id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Shipping address added successfully",
+      data : result
     })
   }
-}
+)
 
-const AddItemToCard = async (req: Request, res : Response) => {
-  try {
-    const user = req.user;
-    if(!user){
-      res.status(404).json({
-        message : false,
-        error : "Please Login to Add Item in your Cart"
+const AddItemToCard = catchAsync(
+  async(req: Request, res: Response) => {
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
       })
     }
-
-    const userId = req.user?.id;
-    const result = await customerService.AddItemToCard(req.body, userId as string);
-
-    res.status(201).json(result);
-
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.AddItemToCard(req.body ,id);
+    console.log(result)
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Item added to cart successfully",
+      data : result
     })
   }
-}
+)
 
-const DecrementCartItem = async (req: Request, res : Response) => {
-  try {
-    const user = req.user;
-    // console.log(user);
-    if(!user){
-      res.status(404).json({
-        message : false,
-        error : "Please Login to Add Item in your Cart"
+const DecrementCartItem = catchAsync(
+  async(req: Request, res: Response) => {
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
       })
     }
-    // console.log(req.body);
-
-    const userId = req.user?.id;
-    const result = await customerService.DecrementCartItem(req.body, userId as string);
-
-    res.status(201).json(result);
-
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.DecrementCartItem(req.body ,id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Cart item decremented successfully",
+      data : result
     })
   }
-}
+)
 
-const getMyCartItem = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.user);
+const getMyCartItem = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
@@ -170,201 +148,167 @@ const getMyCartItem = async(req: Request, res : Response) => {
     }
     const userId = req.user.id;
     const result = await customerService.getMyCartItem(userId);
-    // console.log(result);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Cart items fetched successfully",
+      data : result
     })
   }
-}
+)
 
-const getMySingleCartItem = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.user);
+const getMySingleCartItem = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-    const userId = req.user.id;
     const {id} = req.params;
     const result = await customerService.getMySingleCartItem(id as string);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Cart item fetched successfully",
+      data : result
     })
   }
-}
+)
 
-const deleteCartItem = async (req: Request, res : Response) => {
-  try {
-    const user = req.user;
-    if(!user){
-      res.status(404).json({
-        message : false,
-        error : "Please Login to Add Item in your Cart"
+const deleteCartItem = catchAsync(
+  async(req: Request, res: Response) => {
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
       })
     }
-    const id = await req.params.id;
+    const {id} = req.params;
     const result = await customerService.deleteCartItem(id as string);
-    // console.log(result);
-
-    res.status(201).json(result);
-
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Cart item deleted successfully",
+      data : result
     })
   }
-}
+)
 
-const createAddress = async(req: Request, res : Response) => {
-  try {
-    // console.log('hi');
-
+const createAddress = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-    // console.log(req.body);
-
-    const userId = req.user.id as string ;
-    const result = await customerService.createAddress(req.body , userId as string);
-    // console.log(result);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.createAddress(req.body ,id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Address added successfully",
+      data : result
     })
   }
-}
+)
 
-const getMyAddress = async(req: Request, res : Response) => {
-  try {
+const getMyAddress = catchAsync(
+  async(req: Request, res: Response) => {
+    if(!req.user){
+      return res.status(404).json({
+        success : false,
+        message : "You are not Authorized"
+      })
+    }
+    const {id} = req.user;
+    const result = await customerService.getMyAddress(id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Address fetched successfully",
+      data : result
+    })
+  }
+)
+
+const updateAddress = catchAsync(
+  async(req: Request, res: Response) => {
     console.log('hi');
-
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-    // console.log(req.body);
-
-    const userId = req.user.id as string ;
-    const result = await customerService.getMyAddress(userId as string);
-    // console.log(result);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.updateAddress(req.body ,id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Profile updated successfully",
+      data : result
     })
   }
-}
+)
 
-const updateAddress = async(req: Request, res : Response) => {
-  try {
+const createReview = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-
-    const userId = req.user.id as string ;
-    const result = await customerService.updateAddress(req.body , userId as string);
-    // console.log(result);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.createReview(req.body ,id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Review added successfully",
+      data : result
     })
   }
-}
+)
 
-const createReview = async(req: Request, res : Response) => {
-  try {
-    // console.log(req.body)
-
-    if(!req.user){
-      return res.status(404).json({
-        success : false,
-        message : "You are not Unauthorized"
-      })
-    }
-
-    const userId = req.user.id as string ;
-    const result = await customerService.createReview(req.body , userId as string);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
-    })
-  }
-}
-
-const getReview = async(req: Request, res : Response) => {
-  try {
-
+const getReview = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-
-    const userId = req.user.id as string ;
-    const result = await customerService.getReview(userId as string);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.getReview(id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Review fetched successfully",
+      data : result
     })
   }
-}
+)
 
-const getSingleMedicineReview = async(req: Request, res : Response) => {
-  try {
-
+const getSingleMedicineReview = catchAsync(
+  async(req: Request, res: Response) => {
     if(!req.user){
       return res.status(404).json({
         success : false,
         message : "You are not Authorized"
       })
     }
-
-    const {medicineId} = req.params ;
-    console.log(medicineId);
-    const result = await customerService.getSingleMedicineReview(medicineId as string);
-
-    res.status(200).json(result);
-  } catch (error : any) {
-    res.status(500).json({
-      success : false,
-      message : error.message
+    const {id} = req.user;
+    const result = await customerService.getSingleMedicineReview(id);
+    sendResponse(res, {
+      httpStatusCode : status.OK,
+      success : true,
+      message : "Review fetched successfully",
+      data : result
     })
   }
-}
+)
 
 export const customerController = {
   getMyProfile, getMyOrder, editMyProfile, getSingleOrder, addShippingAddress, AddItemToCard,getMyCartItem, getMySingleCartItem, DecrementCartItem, deleteCartItem, createAddress,updateAddress, getMyAddress, createReview, getReview, getSingleMedicineReview
