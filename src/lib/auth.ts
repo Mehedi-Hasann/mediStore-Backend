@@ -8,15 +8,18 @@ import { envVars } from "../config/env";
 import { bearer, emailOTP } from "better-auth/plugins";
 import { sendEmail } from "../utils/email";
 
+import SMTPTransport from "nodemailer/lib/smtp-transport";
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
+  family : 4,
   auth: {
     user: envVars.APP_USER,
     pass: envVars.EMAIL_SENDER.SMTP_PASS,
   }
-});
+} as SMTPTransport.Options);
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
